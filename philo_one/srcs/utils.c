@@ -37,19 +37,13 @@ int		ft_atoi(const char *str)
 	return (sign * nb);
 }
 
-void	ft_putnbr(int n)
+void	ft_putnbr(unsigned long n)
 {
-	long ln;
 	char c;
 
-	ln = n;
-	if (ln < 0)
-	{
-		ln *= -1;
-		write(1, "-", 1);
-	}
-	if (ln > 9)
-		ft_putnbr(ln / 10);
-	c = ln % 10 + '0';
+	if (n > 9)
+		ft_putnbr(n / 10);
+	c = n % 10 + '0';
 	write(1, &c, 1);
 }
+

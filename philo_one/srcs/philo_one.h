@@ -14,12 +14,14 @@ typedef struct		s_data
 	pthread_t		*thread;
 	pthread_mutex_t	*mx_fork;
 	pthread_mutex_t	mx_write;
+	pthread_mutex_t	mx_exit;
 	int				nbr_of_philo;
 	int				nbr_of_forks;
 	int				nbr_of_req_eats;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
+	unsigned long	time_to_die;
+	unsigned long	time_to_eat;
+	unsigned long	time_to_sleep;
+	unsigned long	start_timestamp;
 	int				exit_flag;
 }					t_data;
 
@@ -27,7 +29,7 @@ typedef struct		s_philo
 {
 	int				id;
 	int				id_clean;
-	int				time_of_last_meal;
+	unsigned long	time_of_last_meal;
 	t_data			*data;
 }					t_philo;
 
