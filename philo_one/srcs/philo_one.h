@@ -28,9 +28,11 @@ typedef struct		s_data
 typedef struct		s_philo
 {
 	int				id;
-	int				id_clean;
 	unsigned long	time_of_last_meal;
 	t_data			*data;
 }					t_philo;
+
+int		init(t_philo **philo, t_data *data);
+int		parsing(char *av[], t_data *data);
 
 #endif

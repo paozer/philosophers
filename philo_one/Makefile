@@ -1,6 +1,7 @@
 NAME	=	philo_one
 
 SRCS	=	$(SRCS_D)philo_one.c\
+			$(SRCS_D)philo_setup.c\
 			$(SRCS_D)utils.c\
 
 OBJS	=	$(SRCS:.c=.o)
