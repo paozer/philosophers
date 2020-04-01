@@ -18,35 +18,87 @@ int	parsing(char *av[], t_data *data)
 		data->time_to_eat < 0 || data->time_to_sleep < 0)
 		return (1);
 	data->thread = NULL;
-	data->mutex = NULL;
+	data->mx_fork = NULL;
+	data->exit_flag = 1;
 	(data->nbr_of_req_eats < 0) ? data->nbr_of_req_eats = -1 : 0;
 	return (0);
 }
 
-void	*start_life_cycle(void *data)
+void	print_message(t_data *data, int id, char *message)
 {
-	t_philo *kek;
-
-	kek = (t_philo *)data;
-	ft_putnbr(kek->id);
-	return (NULL);
+	pthread_mutex_lock(&data->mx_write);
+	ft_putnbr(id);
+	write(1, message, ft_strlen(message));
+	pthread_mutex_unlock(&data->mx_write);
 }
 
-void	debug(t_data data)
+int		philo_is_dead(t_philo *philo, t_data *data)
 {
-	fprintf(stderr, "data.nbr_of_philo %d\n", data.nbr_of_philo);
-	fprintf(stderr, "data.nbr_of_forks %d\n", data.nbr_of_forks);
-	fprintf(stderr, "data.nbr_of_req_eats %d\n", data.nbr_of_req_eats);
-	fprintf(stderr, "data.time_to_die %d\n", data.time_to_die);
-	fprintf(stderr, "data.time_to_eat %d\n", data.time_to_eat);
-	fprintf(stderr, "data.time_to_sleep %d\n", data.time_to_sleep);
+	struct timeval tp;
+
+	if (data->exit_flag == 0)
+		return (1);
+	gettimeofday(&tp, NULL);
+	if (tp.tv_usec - philo->time_of_last_meal > data->time_to_die)
+	{
+		data->exit_flag = 0;
+		print_message(data, philo->id_clean, " died\n");
+		return (1);
+	}
+	return (0);
+}
+
+int		get_forks(t_philo *philo, t_data *data)
+{
+	int i;
+	int j;
+
+	if (philo_is_dead(philo, data))
+		return (0);
+	i = (philo->id == 0) ? data->nbr_of_philo - 1 : philo->id - 1;
+	j = (philo->id == data->nbr_of_philo) ? 0 : philo->id + 1;
+	pthread_mutex_lock(&data->mx_fork[i]);
+	if (philo_is_dead(philo, data))
+		return (0);
+	print_message(data, philo->id_clean, " has taken a fork\n");
+	pthread_mutex_lock(&data->mx_fork[j]);
+	if (philo_is_dead(philo, data))
+		return (0);
+	print_message(data, philo->id_clean, " has taken a fork\n");
+	return (1);
+}
+
+void	*life_cycle(void *ph)
+{
+	t_philo *philo;
+	t_data	*data;
+	struct timeval tp;
+
+	philo = (t_philo *)ph;
+	data = philo->data;
+	while (data->exit_flag)
+	{
+		print_message(data, philo->id_clean, " is thinking\n");
+		if (!get_forks(philo, data))
+			return (NULL);
+		print_message(data, philo->id_clean, " is eating\n");
+		gettimeofday(&tp, NULL);
+		philo->time_of_last_meal = tp.tv_usec;
+		usleep(data->time_to_eat);
+		if (philo_is_dead(philo, data))
+			return (NULL);
+		print_message(data, philo->id_clean, " is sleeping\n");
+		usleep(data->time_to_sleep);
+	}
+	return (NULL);
 }
 
 int		main(int ac, char **av)
 {
-	int		i;
-	t_data	data;
-	t_philo	*philo;
+	int i;
+	t_data data;
+	t_philo *philo;
+	struct timeval tp;
 
 	if ((ac != 5 && ac != 6) || parsing(av, &data))
 	{
@@ -55,23 +107,32 @@ int		main(int ac, char **av)
 	}
 	philo = NULL;
 	if (!(data.thread = malloc(sizeof(*data.thread) * data.nbr_of_philo)) ||
-		!(data.mutex = malloc(sizeof(*data.mutex) * data.nbr_of_forks)) ||
+		!(data.mx_fork = malloc(sizeof(*data.mx_fork) * data.nbr_of_forks)) ||
 		!(philo = malloc(sizeof(*philo) * data.nbr_of_philo)))
 	{
 		free(data.thread);
-		free(data.mutex);
+		free(data.mx_fork);
 		free(philo);
 		return (1);
 	}
 	i = 0;
-	debug(data);
+	while (i < data.nbr_of_forks)
+		pthread_mutex_init(&data.mx_fork[i++], NULL);
+	pthread_mutex_init(&data.mx_write, NULL);
+	i = 0;
 	while (i < data.nbr_of_philo)
 	{
 		philo[i].id = i;
+		philo[i].id_clean = i + 1;
 		philo[i].data = &data;
-		philo[i].time_since_last_meal = 0;
-		pthread_create(&data.thread[i], NULL, start_life_cycle, (void *)&philo[i]);
+		gettimeofday(&tp, NULL);
+		philo[i].time_of_last_meal = tp.tv_usec;
+		pthread_create(&data.thread[i], NULL, life_cycle, (void *)&philo[i]);
 		++i;
 	}
+	i = 0;
+	while (i < data.nbr_of_forks)
+		pthread_mutex_destroy(&data.mx_fork[i++]);
+	pthread_mutex_destroy(&data.mx_write);
 	return (0);
 }
