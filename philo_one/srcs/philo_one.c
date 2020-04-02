@@ -8,8 +8,10 @@ int		philo_is_dead(t_philo *philo, t_data *data)
 		pthread_mutex_unlock(&data->mx_exit);
 		return (1);
 	}
+	pthread_mutex_unlock(&data->mx_exit);
 	if (get_timestamp() - philo->time_of_last_meal >= data->time_to_die)
 	{
+		pthread_mutex_lock(&data->mx_exit);
 		data->exit_flag = 0;
 		pthread_mutex_unlock(&data->mx_exit);
 		pthread_mutex_lock(&data->mx_write);
@@ -17,10 +19,8 @@ int		philo_is_dead(t_philo *philo, t_data *data)
 		write(1, " ", 1);
 		ft_putnbr(philo->id + 1);
 		write(1, " died\n", 6);
-		pthread_mutex_unlock(&data->mx_write);
 		return (1);
 	}
-		pthread_mutex_unlock(&data->mx_exit);
 	return (0);
 }
 
@@ -43,16 +43,14 @@ int		get_forks(t_philo *philo, t_data *data)
 
 	if (philo_is_dead(philo, data))
 		return (1);
-	// add locking mutex for locking mutex
 	pthread_mutex_lock(&data->mx_fork[philo->id]);
 	if (print_message(data, philo, " has taken a fork\n"))
 		return (1);
 	i = (philo->id == data->nbr_of_philo - 1) ? 0 : philo->id + 1;
-	if (philo_is_dead(philo, data))
-		return (1);
-	// add unlocking of mutex for locking mutex
 	pthread_mutex_lock(&data->mx_fork[i]);
 	if (print_message(data, philo, " has taken a fork\n"))
+		return (1);
+	if (philo_is_dead(philo, data))
 		return (1);
 	return (0);
 }
@@ -82,7 +80,10 @@ void	*life_cycle(void *ph)
 	{
 		pthread_mutex_lock(&data->mx_exit);
 		if (!(data->exit_flag))
+		{
+			pthread_mutex_unlock(&data->mx_exit);
 			return (NULL);
+		}
 		pthread_mutex_unlock(&data->mx_exit);
 		if (print_message(data, philo, " is thinking\n"))
 			return (NULL);
