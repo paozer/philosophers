@@ -13,7 +13,7 @@ SRCS_D	=	srcs/
 
 CC		=	gcc
 
-CFLAGS	=	-pthread -g3 -fsanitize=address -I$(SRCS_D) -Wall -Wextra #-Werror
+CFLAGS	=	-pthread -g3 -fsanitize=thread -I$(SRCS_D) -Wall -Wextra #-Werror
 
 %.o:	%.c $(HEADER)
 		@$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)

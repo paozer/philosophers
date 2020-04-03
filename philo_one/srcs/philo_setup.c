@@ -1,30 +1,47 @@
 #include "philo_one.h"
 
-int		parsing(char *av[], t_data *data)
+/*
+** parses cli arguments
+** time to ... are passed in ms and stored in ms/us
+** for simpler use with usleep fct
+*/
+
+int		parsing(char *av[], t_rules *rules)
 {
-	data->nbr_of_philo = ft_atoi(av[1]);
-	data->nbr_of_forks = data->nbr_of_philo;
-	data->time_to_die = ft_atoul(av[2]) * 1000;
-	data->time_to_eat = ft_atoul(av[3]) * 1000;
-	data->time_to_sleep = ft_atoul(av[4]) * 1000;
-	data->nbr_of_req_eats = (av[5]) ? ft_atoi(av[5]) : -1;
-	if (data->nbr_of_philo < 2)
+	rules->nbr_of_philo = ft_atoi(av[1]);
+	if (rules->nbr_of_philo < 2)
 		return (1);
-	data->exit_flag = 1;
-	(data->nbr_of_req_eats < 0) ? data->nbr_of_req_eats = -1 : 0;
+	rules->nbr_of_req_eats = (av[5]) ? ft_atoi(av[5]) : -1;
+	rules->time_to_die_ms = ft_atol(av[2]);
+	rules->time_to_eat_ms = ft_atol(av[3]);
+	rules->time_to_sleep_ms = ft_atol(av[4]);
+	rules->time_to_die_us = rules->time_to_die_ms * 1000;
+	rules->time_to_eat_us = rules->time_to_eat_ms * 1000;
+	rules->time_to_sleep_us = rules->time_to_sleep_ms * 1000;
 	return (0);
 }
 
-int		init(t_philo **philo, t_data *data)
+/*
+** mallocs philo array
+** mallocs and inits thread/mutex arrays
+** inits write/exit mutex
+*/
+
+int		init(t_philo **philo, t_mutex *mutex, int nbr_of_philo)
 {
-	if (!(data->thread = malloc(sizeof(*data->thread) * data->nbr_of_philo)) ||
-		!(data->mx_fork = malloc(sizeof(*data->mx_fork) * data->nbr_of_forks)) ||
-		!(*philo = malloc(sizeof(**philo) * data->nbr_of_philo)))
+	int i;
+
+	if (!(mutex->fork = malloc(sizeof(*mutex->fork) * nbr_of_philo)) ||
+		!(*philo = malloc(sizeof(**philo) * nbr_of_philo)))
 	{
-		free(data->thread);
-		free(data->mx_fork);
+		free(mutex->fork);
 		free(*philo);
 		return (1);
 	}
+	i = -1;
+	while (++i < nbr_of_philo)
+		pthread_mutex_init(&mutex->fork[i], NULL);
+	pthread_mutex_init(&mutex->write, NULL);
+	pthread_mutex_init(&mutex->read, NULL);
 	return (0);
 }
