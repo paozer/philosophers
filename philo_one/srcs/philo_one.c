@@ -1,6 +1,7 @@
 #include "philo_one.h"
 
-int g_philo_has_died;
+int g_philo_has_died_flag;
+int g_philo_have_eaten_counter;
 
 int		philo_is_dead(t_philo *philo, int sleep_flag)
 {
@@ -18,7 +19,7 @@ int		philo_is_dead(t_philo *philo, int sleep_flag)
 		(sleep_flag) ? timestamp_ms = get_timestamp_ms() : 0;
 		pthread_mutex_lock(&philo->mutex->write);
 		pthread_mutex_lock(&philo->mutex->read);
-		g_philo_has_died = 1;
+		g_philo_has_died_flag = 1;
 		pthread_mutex_unlock(&philo->mutex->read);
 		ft_putnbr(timestamp_ms - philo->rules->time_of_start_ms);
 		write(1, " ", 1);
@@ -42,6 +43,7 @@ int	print_message(t_philo *philo, int index)
 	ft_putnbr(get_timestamp_ms() - philo->rules->time_of_start_ms);
 	write(1, " ", 1);
 	ft_putnbr(philo->id + 1);
+	write(1, " ", 1);
 	write(1, message[index], len[index]);
 	pthread_mutex_unlock(&philo->mutex->write);
 	return (1);
@@ -64,6 +66,11 @@ int	do_eating(t_philo *philo)
 	usleep(philo->rules->time_to_eat_us);
 	pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
 	pthread_mutex_unlock(&philo->mutex->fork[i]);
+	++philo->meal_counter;
+	pthread_mutex_lock(&philo->mutex->read);
+	if (philo->meal_counter == philo->rules->nbr_of_req_eats)
+		++g_philo_have_eaten_counter;
+	pthread_mutex_unlock(&philo->mutex->read);
 	return (1);
 }
 
@@ -117,14 +124,22 @@ int		main(int ac, char **av)
 		philo[i].id = i;
 		philo[i].rules = &rules;
 		philo[i].mutex = &mutex;
+		philo[i].meal_counter = 0;
 		philo[i].time_of_last_meal_ms = get_timestamp_ms();
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
 		pthread_detach(philo[i].tid);
 		++i;
 	}
 	i = -1;
-	while (!pthread_mutex_lock(&mutex.read) && !g_philo_has_died)
+	while (!pthread_mutex_lock(&mutex.read) && !g_philo_has_died_flag)
 	{
+		if (g_philo_have_eaten_counter == rules.nbr_of_philo)
+		{
+			pthread_mutex_unlock(&mutex.read);
+			pthread_mutex_lock(&mutex.write);
+			write(1, "All philosophers ate enough\n", 28);
+			break ;
+		}
 		pthread_mutex_unlock(&mutex.read);
 		usleep(1000);
 	}

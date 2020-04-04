@@ -15,7 +15,8 @@
 # define MSG_EATING 2
 # define MSG_SLEEPING 3
 
-extern int g_philo_has_died;
+extern int g_philo_has_died_flag;
+extern int g_philo_have_eaten_counter;
 
 typedef struct		s_mutex
 {
@@ -41,6 +42,7 @@ typedef struct		s_philo
 {
 	int				id;
 	pthread_t		tid;
+	int				meal_counter;
 	unsigned long	time_of_last_meal_ms;
 	t_rules			*rules;
 	t_mutex			*mutex;
