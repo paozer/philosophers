@@ -17,10 +17,12 @@ int		philo_is_dead(t_philo *philo, int sleep_flag)
 					philo->rules->time_to_die_ms - timestamp_ms -
 					philo->rules->time_to_sleep_ms)) : 0;
 		(sleep_flag) ? timestamp_ms = get_timestamp_ms() : 0;
-		pthread_mutex_lock(&philo->mutex->write);
-		pthread_mutex_lock(&philo->mutex->read);
+		pthread_mutex_lock(&philo->mutex->gblvar);
+		if (g_philo_has_died_flag && !pthread_mutex_unlock(&philo->mutex->gblvar))
+			return (1);
 		g_philo_has_died_flag = 1;
-		pthread_mutex_unlock(&philo->mutex->read);
+		pthread_mutex_unlock(&philo->mutex->gblvar);
+		pthread_mutex_lock(&philo->mutex->write);
 		ft_putnbr(timestamp_ms - philo->rules->time_of_start_ms);
 		write(1, " ", 1);
 		ft_putnbr(philo->id + 1);
@@ -51,7 +53,7 @@ int	print_message(t_philo *philo, int index)
 
 int	do_eating(t_philo *philo)
 {
-	int			i;
+	int	i;
 
 	i = (philo->id == philo->rules->nbr_of_philo - 1) ? 0 : philo->id + 1;
 	pthread_mutex_lock(&philo->mutex->fork[philo->id]);
@@ -63,14 +65,13 @@ int	do_eating(t_philo *philo)
 	if (!print_message(philo, MSG_EATING))
 		return (0);
 	philo->time_of_last_meal_ms = get_timestamp_ms();
+	pthread_mutex_lock(&philo->mutex->gblvar);
+	if (++philo->meal_counter == philo->rules->nbr_of_req_eats)
+		++g_philo_have_eaten_counter;
+	pthread_mutex_unlock(&philo->mutex->gblvar);
 	usleep(philo->rules->time_to_eat_us);
 	pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
 	pthread_mutex_unlock(&philo->mutex->fork[i]);
-	++philo->meal_counter;
-	pthread_mutex_lock(&philo->mutex->read);
-	if (philo->meal_counter == philo->rules->nbr_of_req_eats)
-		++g_philo_have_eaten_counter;
-	pthread_mutex_unlock(&philo->mutex->read);
 	return (1);
 }
 
@@ -127,29 +128,37 @@ int		main(int ac, char **av)
 		philo[i].meal_counter = 0;
 		philo[i].time_of_last_meal_ms = get_timestamp_ms();
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
-		pthread_detach(philo[i].tid);
+		//pthread_detach(philo[i].tid);
 		++i;
 	}
+	while (++i < rules.nbr_of_philo)
+		pthread_join(philo[i].tid, NULL);
 	i = -1;
-	while (!pthread_mutex_lock(&mutex.read) && !g_philo_has_died_flag)
+	while (1)
 	{
-		if (g_philo_have_eaten_counter == rules.nbr_of_philo)
+		pthread_mutex_lock(&mutex.gblvar);
+		if (g_philo_has_died_flag)
 		{
-			pthread_mutex_unlock(&mutex.read);
-			pthread_mutex_lock(&mutex.write);
-			write(1, "All philosophers ate enough\n", 28);
+			pthread_mutex_unlock(&mutex.gblvar);
 			break ;
 		}
-		pthread_mutex_unlock(&mutex.read);
+		if (rules.nbr_of_req_eats > 0 && g_philo_have_eaten_counter == rules.nbr_of_philo)
+		{
+			pthread_mutex_unlock(&mutex.gblvar);
+			pthread_mutex_lock(&mutex.write);
+			write(1, "All philosophers ate enough\n", 28);
+			//pthread_mutex_unlock(&mutex.write);
+			break ;
+		}
+		pthread_mutex_unlock(&mutex.gblvar);
 		usleep(1000);
 	}
-	usleep(100000);
-	pthread_mutex_unlock(&philo->mutex->read);
+	usleep(10000);
 	i = -1;
 	while (++i < rules.nbr_of_philo)
 		pthread_mutex_destroy(&mutex.fork[i]);
 	pthread_mutex_destroy(&mutex.write);
-	pthread_mutex_destroy(&mutex.read);
+	pthread_mutex_destroy(&mutex.gblvar);
 	free(mutex.fork);
 	free(philo);
 	return (0);

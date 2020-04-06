@@ -22,7 +22,7 @@ typedef struct		s_mutex
 {
 	pthread_mutex_t	*fork;
 	pthread_mutex_t	write;
-	pthread_mutex_t	read;
+	pthread_mutex_t	gblvar;
 }					t_mutex;
 
 typedef struct		s_rules

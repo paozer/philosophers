@@ -42,6 +42,6 @@ int		init(t_philo **philo, t_mutex *mutex, int nbr_of_philo)
 	while (++i < nbr_of_philo)
 		pthread_mutex_init(&mutex->fork[i], NULL);
 	pthread_mutex_init(&mutex->write, NULL);
-	pthread_mutex_init(&mutex->read, NULL);
+	pthread_mutex_init(&mutex->gblvar, NULL);
 	return (0);
 }
