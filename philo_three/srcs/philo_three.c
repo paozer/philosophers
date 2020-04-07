@@ -138,9 +138,15 @@ int		main(int ac, char **av)
 		}
 		++i;
 	}
-	while (sem_wait(semaphore.read) && !g_philo_has_died_flag)
+	while (1)
 	{
-		if (g_philo_have_eaten_counter == rules.nbr_of_philo)
+		sem_wait(semaphore.read)
+		if (!g_philo_has_died_flag)
+		{
+			sem.post(sem.read);
+			break ;
+		}
+		if (rules.nbr_of_req_eats > 0 && g_philo_have_eaten_counter == rules.nbr_of_philo)
 		{
 			sem_post(semaphore.read);
 			sem_wait(semaphore.write);
@@ -150,7 +156,9 @@ int		main(int ac, char **av)
 		sem_post(semaphore.read);
 		usleep(1000);
 	}
-	usleep(100000);
+	sem_unlink("/forks");
+	sem_unlink("/write");
+	sem_unlink("/read");
 	free(philo);
 	return (0);
 }

@@ -26,21 +26,18 @@ int		parsing(char *av[], t_rules *rules)
 ** inits fork/write/exit sems
 */
 
-int		init(pid **pid, t_sem *sem, int nbr_of_philo)
+int		init(pid **pid, t_semaphore *sem, int nbr_of_philo)
 {
 	if (!(*pid = malloc(sizeof(**pid) * nbr_of_philo)))
 		return (1);
-	sem->forks = sem_open("/forks", O_CREAT, 0777, nbr_of_philo);
-	sem->write = sem_open("/write", O_CREAT, 0777, 1);
-	sem->read = sem_open("/read", O_CREAT, 0777, 1);
+	sem->forks = sem_open("/forks", O_CREAT, 0644, nbr_of_philo);
+	sem->write = sem_open("/write", O_CREAT, 0644, 1);
+	sem->read = sem_open("/read", O_CREAT, 0644, 1);
 	if (sem->forks == SEM_FAILED || sem->write == SEM_FAILED ||
 		sem->read == SEM_FAILED)
 	{
 		free(*pid);
 		return (1);
 	}
-	sem_unlink("/forks");
-	sem_unlink("/write");
-	sem_unlink("/read");
 	return (0);
 }
