@@ -26,19 +26,19 @@ int		parsing(char *av[], t_rules *rules)
 ** inits fork/write/exit semaphores
 */
 
-int		init(t_philo **philo, t_sem *semaphore, int nbr_of_philo)
+int		init(t_philo **philo, t_semaphore *sem, int nbr_of_philo)
 {
 	if (!(*philo = malloc(sizeof(**philo) * nbr_of_philo)))
 		return (1);
-	semaphore->forks = sem_open("/forks", O_CREAT, 0777, nbr_of_philo);
-	semaphore->write = sem_open("/write", O_CREAT, 0777, 1);
-	semaphore->read = sem_open("/read", O_CREAT, 0777, 1);
-	if (semaphore->forks == SEM_FAILED ||
-		semaphore->write == SEM_FAILED ||
-		semaphore->read == SEM_FAILED)
+	sem->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, nbr_of_philo);
+	sem->write = sem_open("/write", O_CREAT | O_EXCL, 0644, 1);
+	sem->read = sem_open("/read", O_CREAT | O_EXCL, 0644, 1);
+	// make failure test individual
+	if (sem->forks == SEM_FAILED || sem->write == SEM_FAILED ||
+		sem->read == SEM_FAILED)
+	{
+		write(2, "malloc/sem_open error\n", 22);
 		return (1);
-	sem_unlink("/forks");
-	sem_unlink("/write");
-	sem_unlink("/read");
+	}
 	return (0);
 }

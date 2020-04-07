@@ -21,12 +21,12 @@
 extern int g_philo_has_died_flag;
 extern int g_philo_have_eaten_counter;
 
-typedef struct		s_sem
+typedef struct		s_semaphore
 {
 	sem_t			*forks;
 	sem_t			*write;
 	sem_t			*read;
-}					t_sem;
+}					t_semaphore;
 
 typedef struct		s_rules
 {
@@ -48,10 +48,10 @@ typedef struct		s_philo
 	int				meal_counter;
 	unsigned long	time_of_last_meal_ms;
 	t_rules			*rules;
-	t_sem			*semaphore;
+	t_semaphore		*sem;
 }					t_philo;
 
 int					parsing(char *av[], t_rules *rules);
-int					init(t_philo **philo, t_sem *semaphore, int nbr_of_philo);
+int					init(t_philo **philo, t_semaphore *sem, int nbr_of_philo);
 
 #endif
