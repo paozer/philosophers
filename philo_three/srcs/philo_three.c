@@ -56,11 +56,11 @@ void	*monitor_death(void *ph)
 	philo = (t_philo *)ph;
 	while (1)
 	{
+		sem_wait(philo->sem.write);
 		timestamp_ms = get_timestamp_ms();
 		if (timestamp_ms - philo->time_of_last_meal_ms >=
 			philo->rules.time_to_die_ms)
 		{
-			sem_wait(philo->sem.write);
 			sem_post(philo->sem.simulation_end);
 			ft_putnbr(timestamp_ms - philo->rules.time_of_start_ms);
 			write(1, "\t", 1);
@@ -68,7 +68,8 @@ void	*monitor_death(void *ph)
 			write(1, " died\n", 6);
 			return (NULL);
 		}
-		usleep(1000);
+		sem_post(philo->sem.write);
+		usleep(100);
 	}
 	return (NULL);
 }
