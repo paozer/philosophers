@@ -65,10 +65,12 @@ int	do_eating(t_philo *philo)
 	if (!print_message(philo, MSG_EATING))
 		return (0);
 	philo->time_of_last_meal_ms = get_timestamp_ms();
-	pthread_mutex_lock(&philo->mutex->gblvar);
 	if (++philo->meal_counter == philo->rules->nbr_of_req_eats)
+	{
+		pthread_mutex_lock(&philo->mutex->gblvar);
 		++g_philo_have_eaten_counter;
-	pthread_mutex_unlock(&philo->mutex->gblvar);
+		pthread_mutex_unlock(&philo->mutex->gblvar);
+	}
 	usleep(philo->rules->time_to_eat_us);
 	pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
 	pthread_mutex_unlock(&philo->mutex->fork[i]);
@@ -128,11 +130,13 @@ int		main(int ac, char **av)
 		philo[i].meal_counter = 0;
 		philo[i].time_of_last_meal_ms = get_timestamp_ms();
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
-		//pthread_detach(philo[i].tid);
+		pthread_detach(philo[i].tid);
 		++i;
 	}
+	/*
 	while (++i < rules.nbr_of_philo)
 		pthread_join(philo[i].tid, NULL);
+		*/
 	i = -1;
 	while (1)
 	{
@@ -147,7 +151,6 @@ int		main(int ac, char **av)
 			pthread_mutex_unlock(&mutex.gblvar);
 			pthread_mutex_lock(&mutex.write);
 			write(1, "All philosophers ate enough\n", 28);
-			//pthread_mutex_unlock(&mutex.write);
 			break ;
 		}
 		pthread_mutex_unlock(&mutex.gblvar);
