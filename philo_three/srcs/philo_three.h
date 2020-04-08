@@ -4,10 +4,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stddef.h>
-
-#include <string.h>
-#include <sys/errno.h>
-
 #include <pthread.h>
 #include <signal.h>
 #include <semaphore.h>
@@ -19,14 +15,10 @@
 # define MSG_EATING 2
 # define MSG_SLEEPING 3
 
-extern int g_philo_has_died_flag;
-extern int g_philo_have_eaten_counter;
-
 typedef struct		s_semaphore
 {
 	sem_t			*forks;
 	sem_t			*write;
-	sem_t			*read;
 	sem_t			*simulation_end;
 	sem_t			*finished_eating;
 }					t_semaphore;
@@ -53,7 +45,16 @@ typedef struct		s_philo
 	t_semaphore		sem;
 }					t_philo;
 
+typedef struct		s_mnt_data
+{
+	int				nbr_of_philo;
+	int				nbr_of_req_eats;
+	t_rules			rules;
+	t_semaphore		sem;
+}					t_mnt_data;
+
 int					parsing(char *av[], t_rules *rules);
 int					init(pid_t **pid, t_semaphore *sem, int nbr_of_philo);
+void				set_monitor_data(t_mnt_data *mnt_data, t_rules rules, t_semaphore sem);
 
 #endif
