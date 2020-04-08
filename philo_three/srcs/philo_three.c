@@ -1,107 +1,132 @@
-#include "philo_two.h"
-
-int g_philo_has_died_flag;
-int g_philo_have_eaten_counter;
-
-int		philo_is_dead(t_philo *philo, int sleep_flag)
-{
-	unsigned long time_diff;
-	unsigned long timestamp_ms;
-
-	timestamp_ms = get_timestamp_ms();
-	timestamp_ms += (sleep_flag) ? philo->rules->time_to_sleep_ms : 0;
-	time_diff = timestamp_ms - philo->time_of_last_meal_ms;
-	if (time_diff >= philo->rules->time_to_die_ms)
-	{
-		(sleep_flag) ? usleep(1000 * (philo->time_of_last_meal_ms +
-					philo->rules->time_to_die_ms - timestamp_ms -
-					philo->rules->time_to_sleep_ms)) : 0;
-		(sleep_flag) ? timestamp_ms = get_timestamp_ms() : 0;
-		sem_wait(philo->semaphore->read);
-		g_philo_has_died_flag = 1;
-		sem_post(philo->semaphore->read);
-		sem_wait(philo->semaphore->write);
-		ft_putnbr(timestamp_ms - philo->rules->time_of_start_ms);
-		write(1, " ", 1);
-		ft_putnbr(philo->id + 1);
-		write(1, " died\n", 6);
-		return (1);
-	}
-	return (0);
-}
+#include "philo_three.h"
 
 int	print_message(t_philo *philo, int index)
 {
-	int		sleep_flag;
 	char	*message[4] = {" is thinking\n", " has taken a fork\n", " is eating\n", " is sleeping\n"};
 	size_t	len[4] = {13, 18, 11, 13};
 
-	sleep_flag = (index == MSG_SLEEPING) ? 1 : 0;
-	if (philo_is_dead(philo, sleep_flag))
-		return (0);
-	sem_wait(philo->semaphore->write);
-	ft_putnbr(get_timestamp_ms() - philo->rules->time_of_start_ms);
+	sem_wait(philo->sem.write);
+	ft_putnbr(get_timestamp_ms() - philo->rules.time_of_start_ms);
 	write(1, " ", 1);
 	ft_putnbr(philo->id + 1);
 	write(1, " ", 1);
 	write(1, message[index], len[index]);
-	sem_post(philo->semaphore->write);
+	sem_post(philo->sem.write);
 	return (1);
 }
 
-int	do_eating(t_philo *philo)
+void	do_eating(t_philo *philo)
 {
-	int			i;
+	t_semaphore	sem;
+	t_rules		rules;
 
-	i = (philo->id == philo->rules->nbr_of_philo - 1) ? 0 : philo->id + 1;
-	sem_wait(philo->semaphore->forks);
-	if (!print_message(philo, MSG_FORK))
-		return (0);
-	sem_wait(philo->semaphore->forks);
-	if (!print_message(philo, MSG_FORK))
-		return (0);
-	if (!print_message(philo, MSG_EATING))
-		return (0);
+	sem = philo->sem;
+	rules = philo->rules;
+	sem_wait(sem.forks);
+	print_message(philo, MSG_FORK);
+	sem_wait(sem.forks);
+	print_message(philo, MSG_FORK);
+
+	print_message(philo, MSG_EATING);
 	philo->time_of_last_meal_ms = get_timestamp_ms();
-	usleep(philo->rules->time_to_eat_us);
-	sem_post(philo->semaphore->forks);
-	sem_post(philo->semaphore->forks);
-	++philo->meal_counter;
-	sem_wait(philo->semaphore->read);
-	if (philo->meal_counter == philo->rules->nbr_of_req_eats)
-		++g_philo_have_eaten_counter;
-	sem_post(philo->semaphore->read);
-	return (1);
+	usleep(rules.time_to_eat_us);
+
+	sem_post(sem.forks);
+	sem_post(sem.forks);
+
+	if (++philo->meal_counter == rules.nbr_of_req_eats)
+		sem_post(sem.finished_eating);
 }
 
-int	do_thinking(t_philo *philo)
+void	do_thinking(t_philo *philo)
 {
-	if (!print_message(philo, MSG_THINKING))
-		return (0);
-	return (1);
+	print_message(philo, MSG_THINKING);
 }
 
-int	do_sleeping(t_philo *philo)
+void	do_sleeping(t_philo *philo)
 {
-	if (!print_message(philo, MSG_SLEEPING))
-		return (0);
-	usleep(philo->rules->time_to_sleep_us);
-	return (1);
+	print_message(philo, MSG_SLEEPING);
+	usleep(philo->rules.time_to_sleep_us);
 }
 
-void	*life_cycle(void *ph)
+void	*monitor(void *ph)
 {
-	t_philo *philo;
+	t_philo			*philo;
+	unsigned long	timestamp_ms;
 
 	philo = (t_philo *)ph;
 	while (1)
 	{
-		if (!do_thinking(philo))
-			break ;
-		if (!do_eating(philo))
-			break ;
-		if (!do_sleeping(philo))
-			break ;
+		timestamp_ms = get_timestamp_ms();
+		if (timestamp_ms - philo->time_of_last_meal_ms >=
+			philo->rules.time_to_die_ms)
+		{
+			sem_wait(philo->sem.write);
+			sem_post(philo->sem.simulation_end);
+			ft_putnbr(timestamp_ms - philo->rules.time_of_start_ms);
+			write(1, " ", 1);
+			ft_putnbr(philo->id + 1);
+			write(1, " died\n", 6);
+			return (NULL);
+		}
+		usleep(1000);
+	}
+	return (NULL);
+}
+
+void	*life_cycle(void *ph)
+{
+	pthread_t	tid;
+	t_philo		*philo;
+	t_semaphore	*sem;
+
+	philo = (t_philo *)ph;
+	sem = &philo->sem;
+	sem->forks = sem_open("/forks", 0644);
+	sem->write = sem_open("/write", 0644);
+	sem->read = sem_open("/read", 0644);
+	sem->simulation_end = sem_open("/simulation_end", 0644);
+	sem->finished_eating = sem_open("/finished_eating", 0644);
+	pthread_create(&tid, NULL, monitor, philo);
+	while (1)
+	{
+		do_thinking(philo);
+		do_eating(philo);
+		do_sleeping(philo);
+	}
+	return (NULL);
+}
+
+typedef struct	s_monitor_data
+{
+	int			nbr_of_philo;
+	int			nbr_of_req_eats;
+	t_rules		rules;
+	sem_t		*finished_eating;
+	sem_t		*simulation_end;
+	sem_t		*write;
+}				t_monitor_data;
+
+void	*monitor_finished_eating(void *monitor_data)
+{
+	t_monitor_data *data;
+	int				count;
+
+	count = 0;
+	data = (t_monitor_data *)monitor_data;
+	if (data->nbr_of_req_eats < 1)
+		return (NULL);
+	while (1)
+	{
+		sem_wait(data->finished_eating);
+		sem_post(data->finished_eating);
+		if (++count == data->nbr_of_philo)
+		{
+			sem_wait(data->write);
+			sem_post(data->simulation_end);
+			write(1, "All philosophers ate enough\n", 28);
+			return (NULL);
+		}
 	}
 	return (NULL);
 }
@@ -109,56 +134,51 @@ void	*life_cycle(void *ph)
 int		main(int ac, char **av)
 {
 	int			i;
+	pthread_t	tid;
 	pid_t		*pid;
 	t_philo		philo;
 	t_rules		rules;
-	t_sem		semaphore;
+	t_semaphore sem;
+	t_monitor_data monitor_data;
 
-	philo = NULL;
 	if ((ac != 5 && ac != 6) || parsing(av, &rules) ||
-		init(&pid, &semaphore, rules.nbr_of_philo))
+		init(&pid, &sem, rules.nbr_of_philo) || rules.nbr_of_philo < 2)
 		return (1);
-	i = 0;
+	monitor_data.nbr_of_philo = rules.nbr_of_philo;
+	monitor_data.nbr_of_req_eats = rules.nbr_of_req_eats;
+	monitor_data.rules = rules;
+	monitor_data.write = sem.write;
+	monitor_data.finished_eating = sem.finished_eating;
+	monitor_data.simulation_end = sem.simulation_end;
+	pthread_create(&tid, NULL, monitor_finished_eating, &monitor_data);
+	i = -1;
 	rules.time_of_start_ms = get_timestamp_ms();
-	while (i < rules.nbr_of_philo)
+	while (++i < rules.nbr_of_philo)
 	{
 		philo.id = i;
-		philo.rules = &rules;
-		philo.semaphore = &semaphore;
+		philo.rules = rules;
 		philo.meal_counter = 0;
 		philo.time_of_last_meal_ms = get_timestamp_ms();
-		if ((pid[i] = fork()) == -1)
+		pid[i] = fork();
+		if (pid[i] == -1)
 			write(2, "forking error\n", 14);
 		else if (pid[i] == 0)
 		{
-			life_cycle(philo);
+			life_cycle(&philo);
 			// free necessary shit
 			free(pid);
 			exit(0);
 		}
-		++i;
 	}
-	while (1)
-	{
-		sem_wait(semaphore.read)
-		if (!g_philo_has_died_flag)
-		{
-			sem.post(sem.read);
-			break ;
-		}
-		if (rules.nbr_of_req_eats > 0 && g_philo_have_eaten_counter == rules.nbr_of_philo)
-		{
-			sem_post(semaphore.read);
-			sem_wait(semaphore.write);
-			write(1, "All philosophers ate enough\n", 28);
-			break ;
-		}
-		sem_post(semaphore.read);
-		usleep(1000);
-	}
+	sem_wait(sem.simulation_end);
+	i = -1;
+	while (++i < rules.nbr_of_philo)
+		kill(pid[i], SIGKILL);
 	sem_unlink("/forks");
 	sem_unlink("/write");
 	sem_unlink("/read");
-	free(philo);
+	sem_unlink("/simulation_end");
+	sem_unlink("/finished_eating");
+	free(pid);
 	return (0);
 }

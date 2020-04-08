@@ -9,6 +9,7 @@
 #include <sys/errno.h>
 
 #include <pthread.h>
+#include <signal.h>
 #include <semaphore.h>
 #include "utils.h"
 #include "time.h"
@@ -26,6 +27,8 @@ typedef struct		s_semaphore
 	sem_t			*forks;
 	sem_t			*write;
 	sem_t			*read;
+	sem_t			*simulation_end;
+	sem_t			*finished_eating;
 }					t_semaphore;
 
 typedef struct		s_rules
@@ -46,11 +49,11 @@ typedef struct		s_philo
 	int				id;
 	int				meal_counter;
 	unsigned long	time_of_last_meal_ms;
-	t_rules			*rules;
-	t_semaphore		*sem;
+	t_rules			rules;
+	t_semaphore		sem;
 }					t_philo;
 
 int					parsing(char *av[], t_rules *rules);
-int					init(t_philo **philo, t_semaphore *sem, int nbr_of_philo);
+int					init(pid_t **pid, t_semaphore *sem, int nbr_of_philo);
 
 #endif
