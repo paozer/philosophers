@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_two.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/05/09 16:37:43 by pramella          #+#    #+#             */
+/*   Updated: 2020/05/09 16:37:44 by pramella         ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_two.h"
 
-int g_philo_has_died_flag;
-int g_philo_have_eaten_counter;
+int g_philo_has_died;
+int g_philo_have_eaten;
 
 int		philo_is_dead(t_philo *philo, int sleep_flag)
 {
@@ -18,7 +30,7 @@ int		philo_is_dead(t_philo *philo, int sleep_flag)
 					philo->rules->time_to_sleep_ms)) : 0;
 		(sleep_flag) ? timestamp_ms = get_timestamp_ms() : 0;
 		sem_wait(philo->sem->read);
-		g_philo_has_died_flag = 1;
+		g_philo_has_died = 1;
 		sem_post(philo->sem->read);
 		sem_wait(philo->sem->write);
 		ft_putnbr(timestamp_ms - philo->rules->time_of_start_ms);
@@ -68,7 +80,7 @@ int	do_eating(t_philo *philo)
 	sem_post(philo->sem->forks);
 	sem_wait(philo->sem->read);
 	if (++philo->meal_counter == philo->rules->nbr_of_req_eats)
-		++g_philo_have_eaten_counter;
+		++g_philo_have_eaten;
 	sem_post(philo->sem->read);
 	return (1);
 }
@@ -105,6 +117,13 @@ void	*life_cycle(void *ph)
 	return (NULL);
 }
 
+// to do
+// launch monitor watching all philos
+// using array of pointers to philos structs
+// when philo dies or eaten enough post sem
+// try forks in while loop
+
+
 int		main(int ac, char **av)
 {
 	int			i;
@@ -132,13 +151,13 @@ int		main(int ac, char **av)
 	while (1)
 	{
 		sem_wait(sem.read);
-		if (g_philo_has_died_flag)
+		if (g_philo_has_died)
 		{
 			sem_post(sem.read);
 			break ;
 		}
 		if (rules.nbr_of_req_eats > 0 &&
-			g_philo_have_eaten_counter == rules.nbr_of_philo)
+			g_philo_have_eaten == rules.nbr_of_philo)
 		{
 			sem_post(sem.read);
 			sem_wait(sem.write);

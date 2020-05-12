@@ -1,4 +1,16 @@
-#include "philo_one.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/05/09 16:36:26 by pramella          #+#    #+#             */
+/*   Updated: 2020/05/12 12:26:29 by pramella         ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "utils.h"
 
 size_t			ft_strlen(const char *s)
 {
@@ -25,7 +37,7 @@ unsigned long	ft_atol(const char *str)
 	return (-nb);
 }
 
-int	ft_atoi(const char *str)
+int				ft_atoi(const char *str)
 {
 	size_t	i;
 	int		nb;
@@ -42,7 +54,7 @@ int	ft_atoi(const char *str)
 	return (-nb);
 }
 
-void	ft_putnbr(unsigned long n)
+void			ft_putnbr(unsigned long n)
 {
 	char c;
 

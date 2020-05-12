@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/05/09 16:37:18 by pramella          #+#    #+#             */
+/*   Updated: 2020/05/12 16:03:26 by pramella         ###   ########lyon.fr   */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_THREE_H
 # define PHILO_THREE_H
 
@@ -55,6 +67,15 @@ typedef struct		s_mnt_data
 
 int					parsing(char *av[], t_rules *rules);
 int					init(pid_t **pid, t_semaphore *sem, int nbr_of_philo);
+
+void				*life_cycle(void *ph);
+void				do_eating(t_philo *philo);
+void				do_thinking(t_philo *philo);
+void				do_sleeping(t_philo *philo);
+void				print_message(t_philo *philo, int index);
+
 void				set_monitor_data(t_mnt_data *mnt_data, t_rules rules, t_semaphore sem);
+void				*monitor_finished(void *data);
+void				*monitor_death(void *ph);
 
 #endif

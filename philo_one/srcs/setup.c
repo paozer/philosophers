@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_setup.c                                      :+:      :+:    :+:   */
+/*   setup.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/09 16:37:40 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/09 16:37:41 by pramella         ###   ########lyon.fr   */
+/*   Created: 2020/05/09 16:36:47 by pramella          #+#    #+#             */
+/*   Updated: 2020/05/12 15:46:51 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_two.h"
+#include "philo.h"
 
 /*
 ** parses cli arguments
@@ -35,22 +35,39 @@ int		parsing(char *av[], t_rules *rules)
 
 /*
 ** mallocs philo array
-** inits fork/write/exit semaphores
+** mallocs and inits thread/mutex arrays
+** inits write/exit mutex
 */
 
-int		init(t_philo **philo, t_semaphore *sem, int nbr_of_philo)
+int		init(t_philo **philo, t_mutex *mutex, int nbr_of_philo)
 {
-	if (!(*philo = malloc(sizeof(**philo) * nbr_of_philo)))
-		return (1);
-	sem->forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, nbr_of_philo);
-	sem->write = sem_open("/write", O_CREAT | O_EXCL, 0644, 1);
-	sem->read = sem_open("/read", O_CREAT | O_EXCL, 0644, 1);
-	// make failure test individual
-	if (sem->forks == SEM_FAILED || sem->write == SEM_FAILED ||
-		sem->read == SEM_FAILED)
+	int i;
+
+	mutex->fork = NULL;
+	mutex->fork_lookup = NULL;
+	mutex->fork_is_taken = NULL;
+	*philo = NULL;
+	if (!(mutex->fork = malloc(sizeof(*mutex->fork) * nbr_of_philo)) ||
+		!(mutex->fork_lookup = malloc(sizeof(*mutex->fork_lookup) * nbr_of_philo)) ||
+		!(mutex->fork_is_taken = malloc(sizeof(*mutex->fork_is_taken) * nbr_of_philo)) ||
+		!(*philo = malloc(sizeof(**philo) * nbr_of_philo)))
 	{
-		write(2, "malloc/sem_open error\n", 22);
+		free(mutex->fork);
+		free(mutex->fork_lookup);
+		free(mutex->fork_is_taken);
+		free(*philo);
 		return (1);
 	}
+	i = -1;
+	while (++i < nbr_of_philo)
+	{
+		(*philo)[i].id = -1;
+		mutex->fork_is_taken[i] = 0;
+		pthread_mutex_init(&mutex->fork[i], NULL);
+		pthread_mutex_init(&mutex->fork_lookup[i], NULL);
+		pthread_mutex_init(&(*philo)[i].last_meal, NULL);
+	}
+	pthread_mutex_init(&mutex->write, NULL);
+	pthread_mutex_init(&mutex->gblvar, NULL);
 	return (0);
 }
