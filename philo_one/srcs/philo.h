@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/16 18:56:11 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/16 23:47:30 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,8 @@ typedef struct		s_philo
 
 // MONITOR
 void				print_exit(t_philo *philo, int index, unsigned long timestamp);
-void				*ft_monitor(void *ph);
+void				*monitor_death(void *ph);
+void				*monitor_finished(void *ph);
 
 // PHILO
 int					take_forks(t_philo *philo);

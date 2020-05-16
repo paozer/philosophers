@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:54 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/16 18:59:52 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 00:19:02 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 int		main(int ac, char **av)
 {
 	int			i;
+	pthread_t	tid;
 	t_philo		*philo;
 	t_rules		rules;
 	t_mutex		mutex;
@@ -32,7 +33,10 @@ int		main(int ac, char **av)
 		philo[i].mutex = &mutex;
 		philo[i].meal_counter = 0;
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
+		if (i == 0 && rules.nbr_of_req_eats > 0)
+			pthread_create(&tid, NULL, monitor_finished, &philo[i]);
 	}
+	(rules.nbr_of_req_eats > 0) ? pthread_join(tid, NULL) : 0;
 	i = -1;
 	while (++i < rules.nbr_of_philo)
 		pthread_join(philo[i].tid, NULL);
@@ -54,10 +58,10 @@ void	*life_cycle(void *ph)
 	t_philo		*philo;
 	pthread_t	tid;
 
-	philo = (t_philo *)ph;
+	philo = ph;
 	philo->next_philo_id = (philo->id == philo->rules->nbr_of_philo - 1) ? 0 : philo->id + 1;
 	philo->time_of_last_meal_ms = get_timestamp_ms();
-	pthread_create(&tid, NULL, ft_monitor, philo);
+	pthread_create(&tid, NULL, monitor_death, philo);
 	while (1)
 	{
 		if (!do_thinking(philo) || !do_eating(philo) || !do_sleeping(philo))
@@ -85,11 +89,13 @@ int		do_eating(t_philo *philo)
 	return (1);
 }
 
+// delete function
 int		do_thinking(t_philo *philo)
 {
 	return (print_message(philo, MSG_THINKING));
 }
 
+// delete function
 int		do_sleeping(t_philo *philo)
 {
 	if (!print_message(philo, MSG_SLEEPING))
