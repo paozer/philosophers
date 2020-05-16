@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/16 23:47:30 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 01:49:48 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void				*monitor_finished(void *ph);
 // PHILO
 int					take_forks(t_philo *philo);
 void				put_forks(t_philo *philo);
-int					do_eating(t_philo *philo);
+int					eat(t_philo *philo);
 int					do_thinking(t_philo *philo);
 int					do_sleeping(t_philo *philo);
 void				*life_cycle(void *ph);

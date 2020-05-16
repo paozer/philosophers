@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:54 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/17 00:19:02 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 01:51:50 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ int		main(int ac, char **av)
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
 		if (i == 0 && rules.nbr_of_req_eats > 0)
 			pthread_create(&tid, NULL, monitor_finished, &philo[i]);
+		usleep(100);
 	}
 	(rules.nbr_of_req_eats > 0) ? pthread_join(tid, NULL) : 0;
 	i = -1;
@@ -64,14 +65,20 @@ void	*life_cycle(void *ph)
 	pthread_create(&tid, NULL, monitor_death, philo);
 	while (1)
 	{
-		if (!do_thinking(philo) || !do_eating(philo) || !do_sleeping(philo))
+		if (!eat(philo))
+			break ;
+		if (!print_message(philo, MSG_SLEEPING))
+			break ;
+		else
+			usleep(philo->rules->time_to_sleep_us);
+		if (!print_message(philo, MSG_THINKING))
 			break ;
 	}
 	pthread_join(tid, NULL);
 	return (NULL);
 }
 
-int		do_eating(t_philo *philo)
+int		eat(t_philo *philo)
 {
 	if (!take_forks(philo) || !print_message(philo, MSG_EATING))
 		return (0);
@@ -89,50 +96,20 @@ int		do_eating(t_philo *philo)
 	return (1);
 }
 
-// delete function
-int		do_thinking(t_philo *philo)
-{
-	return (print_message(philo, MSG_THINKING));
-}
-
-// delete function
-int		do_sleeping(t_philo *philo)
-{
-	if (!print_message(philo, MSG_SLEEPING))
-		return (0);
-	usleep(philo->rules->time_to_sleep_us);
-	return (1);
-}
-
 int		take_forks(t_philo *philo)
 {
-	int		i;
-	int		fork_count;
-
-	i = philo->id;
-	fork_count = 0;
-	while (fork_count < 2)
-	{
-		pthread_mutex_lock(&philo->mutex->gblvar);
-		if (g_philo_has_died)
-		{
-			pthread_mutex_unlock(&philo->mutex->gblvar);
-			return (0);
-		}
-		pthread_mutex_unlock(&philo->mutex->gblvar);
-		pthread_mutex_lock(&philo->mutex->fork_lookup[i]);
-		if (!philo->mutex->fork_is_taken[i])
-		{
-			philo->mutex->fork_is_taken[i] = 1;
-			pthread_mutex_unlock(&philo->mutex->fork_lookup[i]);
-			pthread_mutex_lock(&philo->mutex->fork[i]);
-			++fork_count;
-			if (!print_message(philo, MSG_FORK))
-				return (0);
-		}
-		pthread_mutex_unlock(&philo->mutex->fork_lookup[i]);
-		i = (i == philo->id) ? philo->next_philo_id : philo->id;
-	}
+	if (philo->next_philo_id == 0)
+		pthread_mutex_lock(&philo->mutex->fork[0]);
+	else
+		pthread_mutex_lock(&philo->mutex->fork[philo->id]);
+	if (!print_message(philo, MSG_FORK))
+		return (0);
+	if (philo->next_philo_id == 0)
+		pthread_mutex_lock(&philo->mutex->fork[philo->id]);
+	else
+		pthread_mutex_lock(&philo->mutex->fork[philo->next_philo_id]);
+	if (!print_message(philo, MSG_FORK))
+		return (0);
 	return (1);
 }
 
