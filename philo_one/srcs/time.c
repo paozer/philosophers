@@ -6,11 +6,11 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:44 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/10 14:08:14 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/12 17:26:57 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "time.h"
+#include "philo.h"
 
 unsigned long	get_timestamp_us(void)
 {

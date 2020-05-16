@@ -6,7 +6,7 @@
 #    By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/09 16:37:03 by pramella          #+#    #+#              #
-#    Updated: 2020/05/10 14:08:24 by pramella         ###   ########lyon.fr    #
+#    Updated: 2020/05/16 18:37:16 by pramella         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ OBJS	=	$(SRCS:.c=.o)
 HEADER	=	$(SRCS:.c=.h)
 SRCS_D	=	srcs/
 CC		=	clang
-CFLAGS	=	-pthread -fsanitize=thread -g3 -I$(SRCS_D) -Wall -Wextra #-Werror
+CFLAGS	=	-pthread -g3 -I$(SRCS_D) -Wall -Wextra #-Werror
 
 %.o:	%.c $(HEADER)
 		@$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)

@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:47 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/12 15:46:51 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/16 17:58:29 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,11 +61,10 @@ int		init(t_philo **philo, t_mutex *mutex, int nbr_of_philo)
 	i = -1;
 	while (++i < nbr_of_philo)
 	{
-		(*philo)[i].id = -1;
 		mutex->fork_is_taken[i] = 0;
 		pthread_mutex_init(&mutex->fork[i], NULL);
 		pthread_mutex_init(&mutex->fork_lookup[i], NULL);
-		pthread_mutex_init(&(*philo)[i].last_meal, NULL);
+		pthread_mutex_init(&(*philo)[i].eating, NULL);
 	}
 	pthread_mutex_init(&mutex->write, NULL);
 	pthread_mutex_init(&mutex->gblvar, NULL);
