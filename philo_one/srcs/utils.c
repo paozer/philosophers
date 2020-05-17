@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:26 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/16 18:53:25 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 11:11:55 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,21 @@
 
 int				print_message(t_philo *philo, int index)
 {
-	static char	*message[4] = {" is thinking\n", " has taken a fork\n",
-								" is eating\n", " is sleeping\n"};
-	static int	len[4] = {13, 18, 11, 13};
+	static int	len[4] = {18, 11, 13, 13};
+	static char	*message[4] = {" has taken a fork\n", " is eating\n",
+								" is sleeping\n", " is thinking\n"};
 
-	pthread_mutex_lock(&philo->mutex->gblvar);
+	pthread_mutex_lock(&philo->mutex->gblvar_death);
 	if (g_philo_has_died)
 	{
-		pthread_mutex_unlock(&philo->mutex->gblvar);
+		pthread_mutex_unlock(&philo->mutex->gblvar_death);
 		return (0);
 	}
-	pthread_mutex_unlock(&philo->mutex->gblvar);
+	pthread_mutex_unlock(&philo->mutex->gblvar_death);
 	pthread_mutex_lock(&philo->mutex->write);
 	ft_putnbr(get_timestamp_ms() - philo->rules->time_of_start_ms);
-	write(1, " ", 1);
+	write(1, "\t", 1);
 	ft_putnbr(philo->id + 1);
-	write(1, " ", 1);
 	write(1, message[index], len[index]);
 	pthread_mutex_unlock(&philo->mutex->write);
 	return (1);

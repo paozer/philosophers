@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/17 01:49:48 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 12:12:09 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-# define MSG_THINKING 0
-# define MSG_FORK 1
-# define MSG_EATING 2
-# define MSG_SLEEPING 3
+# define TOOK_FORK 0
+# define IS_EATING 1
+# define IS_SLEEPING 2
+# define IS_THINKING 3
 
 int g_philo_has_died;
 int g_philo_have_eaten;
@@ -30,12 +30,9 @@ int g_philo_have_eaten;
 typedef struct		s_mutex
 {
 	pthread_mutex_t	*fork;
-
-	int				*fork_is_taken;
-	pthread_mutex_t *fork_lookup;
-
 	pthread_mutex_t	write;
-	pthread_mutex_t	gblvar;
+	pthread_mutex_t	gblvar_death;
+	pthread_mutex_t	gblvar_finished;
 }					t_mutex;
 
 typedef struct		s_rules
@@ -64,7 +61,8 @@ typedef struct		s_philo
 }					t_philo;
 
 // MONITOR
-void				print_exit(t_philo *philo, int index, unsigned long timestamp);
+void				*print_exit(t_philo *philo, int index,
+					unsigned long timestamp);
 void				*monitor_death(void *ph);
 void				*monitor_finished(void *ph);
 

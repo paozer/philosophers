@@ -6,13 +6,14 @@
 #    By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/09 16:37:03 by pramella          #+#    #+#              #
-#    Updated: 2020/05/16 18:37:16 by pramella         ###   ########lyon.fr    #
+#    Updated: 2020/05/17 11:23:18 by pramella         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	philo_one
 
 SRCS	=	$(SRCS_D)philo.c\
+			$(SRCS_D)life_cycle.c\
 			$(SRCS_D)monitor.c\
 			$(SRCS_D)setup.c\
 			$(SRCS_D)time.c\
@@ -22,7 +23,7 @@ OBJS	=	$(SRCS:.c=.o)
 HEADER	=	$(SRCS:.c=.h)
 SRCS_D	=	srcs/
 CC		=	clang
-CFLAGS	=	-pthread -g3 -I$(SRCS_D) -Wall -Wextra #-Werror
+CFLAGS	=	-pthread -Wall -Wextra #-Werror
 
 %.o:	%.c $(HEADER)
 		@$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)
