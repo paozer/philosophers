@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/10 14:07:58 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/17 12:05:05 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 15:25:39 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 ** eaten enough meals
 */
 
-void	*monitor_finished(void *philo)
+void	*monitor_meals(void *philo)
 {
 	t_mutex *mutex;
 	t_rules *rules;
@@ -26,22 +26,22 @@ void	*monitor_finished(void *philo)
 	rules = ((t_philo *)philo)->rules;
 	while (1)
 	{
-		pthread_mutex_lock(&mutex->gblvar_death);
+		pthread_mutex_lock(&mutex->global_death);
 		if (g_philo_has_died)
 		{
-			pthread_mutex_unlock(&mutex->gblvar_death);
+			pthread_mutex_unlock(&mutex->global_death);
 			return (NULL);
 		}
-		pthread_mutex_lock(&mutex->gblvar_finished);
-		if (g_philo_have_eaten == rules->nbr_of_philo)
+		pthread_mutex_lock(&mutex->global_finished);
+		if (g_philos_have_eaten_enough == rules->nbr_of_philo)
 		{
-			pthread_mutex_unlock(&mutex->gblvar_finished);
+			pthread_mutex_unlock(&mutex->global_finished);
 			g_philo_has_died = 1;
-			pthread_mutex_unlock(&mutex->gblvar_death);
+			pthread_mutex_unlock(&mutex->global_death);
 			return (print_exit(philo, 1, 1));
 		}
-		pthread_mutex_unlock(&mutex->gblvar_death);
-		pthread_mutex_unlock(&mutex->gblvar_finished);
+		pthread_mutex_unlock(&mutex->global_death);
+		pthread_mutex_unlock(&mutex->global_finished);
 		usleep(1000);
 	}
 }
@@ -59,31 +59,31 @@ void	*monitor_death(void *ph)
 	philo = ph;
 	while (1)
 	{
-		pthread_mutex_lock(&philo->eating);
+		pthread_mutex_lock(&philo->is_eating);
 		if ((timestamp = get_timestamp_ms()) - philo->time_of_last_meal_ms >
 			philo->rules->time_to_die_ms)
 		{
-			pthread_mutex_unlock(&philo->eating);
-			pthread_mutex_lock(&philo->mutex->gblvar_death);
+			pthread_mutex_unlock(&philo->is_eating);
+			pthread_mutex_lock(&philo->mutex->global_death);
 			if (!g_philo_has_died)
 			{
 				g_philo_has_died = 1;
-				pthread_mutex_unlock(&philo->mutex->gblvar_death);
+				pthread_mutex_unlock(&philo->mutex->global_death);
 				return (print_exit(philo, 0, timestamp));
 			}
-			pthread_mutex_unlock(&philo->mutex->gblvar_death);
+			pthread_mutex_unlock(&philo->mutex->global_death);
 			return (NULL);
 		}
-		pthread_mutex_unlock(&philo->eating);
+		pthread_mutex_unlock(&philo->is_eating);
 		usleep(1000);
 	}
 }
 
 void	*print_exit(t_philo *philo, int index, unsigned long timestamp)
 {
-	static char *msg[2] = {" has died\n",
+	static char		*msg[2] = {" has died\n",
 							"All philosophers have eaten enough\n"};
-	static int	len[2] = {10, 35};
+	static size_t	len[2] = {10, 35};
 
 	pthread_mutex_lock(&philo->mutex->write);
 	if (index == 0)

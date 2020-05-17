@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:54 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/17 11:18:24 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 15:13:30 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,11 @@ int		main(int ac, char **av)
 		philo[i].mutex = &mutex;
 		philo[i].meal_counter = 0;
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
-		if (i == 0 && rules.nbr_of_req_eats > 0)
-			pthread_create(&tid, NULL, monitor_finished, &philo[i]);
+		if (i == 0 && rules.nbr_of_req_meals > 0)
+			pthread_create(&tid, NULL, monitor_meals, &philo[i]);
 		usleep(100);
 	}
-	(rules.nbr_of_req_eats > 0) ? pthread_join(tid, NULL) : 0;
+	(rules.nbr_of_req_meals > 0) ? pthread_join(tid, NULL) : 0;
 	i = -1;
 	while (++i < rules.nbr_of_philo)
 		pthread_join(philo[i].tid, NULL);
@@ -45,8 +45,8 @@ int		main(int ac, char **av)
 	while (++i < rules.nbr_of_philo)
 		pthread_mutex_destroy(&mutex.fork[i]);
 	pthread_mutex_destroy(&mutex.write);
-	pthread_mutex_destroy(&mutex.gblvar_death);
-	pthread_mutex_destroy(&mutex.gblvar_finished);
+	pthread_mutex_destroy(&mutex.global_death);
+	pthread_mutex_destroy(&mutex.global_finished);
 	free(mutex.fork);
 	free(philo);
 	return (0);

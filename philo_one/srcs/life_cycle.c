@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/17 10:55:37 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/17 12:12:28 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 15:25:39 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,16 +40,16 @@ int		eat(t_philo *philo)
 {
 	if (!take_forks(philo) || !print_message(philo, IS_EATING))
 		return (0);
-	pthread_mutex_lock(&philo->eating);
+	pthread_mutex_lock(&philo->is_eating);
 	philo->time_of_last_meal_ms = get_timestamp_ms();
 	usleep(philo->rules->time_to_eat_us);
-	if (++philo->meal_counter == philo->rules->nbr_of_req_eats)
+	if (++philo->meal_counter == philo->rules->nbr_of_req_meals)
 	{
-		pthread_mutex_lock(&philo->mutex->gblvar_finished);
-		++g_philo_have_eaten;
-		pthread_mutex_unlock(&philo->mutex->gblvar_finished);
+		pthread_mutex_lock(&philo->mutex->global_finished);
+		++g_philos_have_eaten_enough;
+		pthread_mutex_unlock(&philo->mutex->global_finished);
 	}
-	pthread_mutex_unlock(&philo->eating);
+	pthread_mutex_unlock(&philo->is_eating);
 	pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
 	pthread_mutex_unlock(&philo->mutex->fork[philo->next_philo_id]);
 	return (1);

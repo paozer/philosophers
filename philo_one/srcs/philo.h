@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/17 12:12:09 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/17 15:26:48 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,20 +25,20 @@
 # define IS_THINKING 3
 
 int g_philo_has_died;
-int g_philo_have_eaten;
+int g_philos_have_eaten_enough;
 
 typedef struct		s_mutex
 {
 	pthread_mutex_t	*fork;
 	pthread_mutex_t	write;
-	pthread_mutex_t	gblvar_death;
-	pthread_mutex_t	gblvar_finished;
+	pthread_mutex_t	global_death;
+	pthread_mutex_t	global_finished;
 }					t_mutex;
 
 typedef struct		s_rules
 {
 	int				nbr_of_philo;
-	int				nbr_of_req_eats;
+	int				nbr_of_req_meals;
 	unsigned long	time_of_start_ms;
 	unsigned long	time_to_die_ms;
 	unsigned long	time_to_eat_ms;
@@ -50,21 +50,21 @@ typedef struct		s_rules
 
 typedef struct		s_philo
 {
+	pthread_t		tid;
 	int				id;
 	int				next_philo_id;
 	int				meal_counter;
 	unsigned long	time_of_last_meal_ms;
 	t_rules			*rules;
 	t_mutex			*mutex;
-	pthread_mutex_t	eating;
-	pthread_t		tid;
+	pthread_mutex_t	is_eating;
 }					t_philo;
 
 // MONITOR
 void				*print_exit(t_philo *philo, int index,
 					unsigned long timestamp);
 void				*monitor_death(void *ph);
-void				*monitor_finished(void *ph);
+void				*monitor_meals(void *ph);
 
 // PHILO
 int					take_forks(t_philo *philo);
