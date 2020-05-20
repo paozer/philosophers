@@ -6,32 +6,18 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:26 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/17 15:05:23 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/20 21:27:05 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int				print_message(t_philo *philo, int index)
+unsigned long	get_timestamp_ms(void)
 {
-	static size_t	len[4] = {18, 11, 13, 13};
-	static char		*message[4] = {" has taken a fork\n", " is eating\n",
-								" is sleeping\n", " is thinking\n"};
+	struct timeval tv;
 
-	pthread_mutex_lock(&philo->mutex->global_death);
-	if (g_philo_has_died)
-	{
-		pthread_mutex_unlock(&philo->mutex->global_death);
-		return (0);
-	}
-	pthread_mutex_unlock(&philo->mutex->global_death);
-	pthread_mutex_lock(&philo->mutex->write);
-	ft_putnbr(get_timestamp_ms() - philo->rules->time_of_start_ms);
-	write(1, "\t", 1);
-	ft_putnbr(philo->id + 1);
-	write(1, message[index], len[index]);
-	pthread_mutex_unlock(&philo->mutex->write);
-	return (1);
+	gettimeofday(&tv, 0);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
 size_t			ft_strlen(const char *s)
@@ -56,23 +42,6 @@ unsigned long	ft_atol(const char *str)
 		nb = nb * 10 - (str[i] - '0');
 		++i;
 	}
-	return (-nb);
-}
-
-int				ft_atoi(const char *str)
-{
-	size_t	i;
-	int		nb;
-
-	i = 0;
-	nb = 0;
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		nb = nb * 10 - (str[i] - '0');
-		++i;
-	}
-	if (str[i])
-		return (-1);
 	return (-nb);
 }
 
