@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 15:07:24 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/21 14:59:14 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,11 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <stddef.h>
+# include <string.h>
+# include <stdio.h>
 # include <sys/time.h>
 # include <pthread.h>
+# include <semaphore.h>
 
 # define TOOK_FORK 0
 # define IS_EATING 1
@@ -30,13 +33,13 @@
 int g_philo_died;
 int g_philos_satiated;
 
-typedef struct		s_mutex
+typedef struct		s_semaphore
 {
-	pthread_mutex_t	*fork;
-	pthread_mutex_t	write;
-	pthread_mutex_t global_died;
-	pthread_mutex_t global_satiated;
-}					t_mutex;
+	sem_t			*fork;
+	sem_t			*write;
+	sem_t			*global_died;
+	sem_t			*global_satiated;
+}					t_semaphore;
 
 typedef struct		s_rules
 {
@@ -55,16 +58,15 @@ typedef struct		s_philo
 	int				next_philo_id;
 	int				meal_counter;
 	unsigned long	time_of_last_meal_ms;
-	pthread_mutex_t	last_meal;
+	sem_t			*last_meal;
 	t_rules			*rules;
-	t_mutex			*mutex;
+	t_semaphore		*sem;
 }					t_philo;
 
 /*
 ** PHILO
 */
-void				run_simulation(t_philo *ph, t_rules *ru, t_mutex *mx);
-void				cleanup(t_philo *philo);
+void				run_simulation(t_philo *ph, t_rules *ru, t_semaphore *sem);
 
 /*
 ** LIFE_CYCLE
@@ -86,15 +88,23 @@ void				*print_exit(t_philo *philo, int index,
 ** SETUP
 */
 int					parse(char *av[], t_rules *rules);
-int					init(t_philo **philo, t_mutex *mutex, int nbr_of_philo);
+int					init(t_philo **philo, t_semaphore *sem, int nbr_of_philo);
 int					valid_arguments(char *av[]);
+int					unlink_semaphores(int nbr_of_philo);
+char				*get_sem_name(char *basename, int added_index);
 
 /*
 ** UTILS
 */
 unsigned long		get_timestamp_ms(void);
+size_t				ft_strlcpy(char *dst, const char *src, size_t dstsize);
 size_t				ft_strlen(const char *s);
 unsigned long		ft_atol(const char *str);
 void				ft_putnbr(unsigned long n);
+
+/*
+** ITOAs
+*/
+char				*ft_itoa(int n);
 
 #endif

@@ -6,26 +6,24 @@
 #    By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/09 16:37:58 by pramella          #+#    #+#              #
-#    Updated: 2020/05/09 16:37:59 by pramella         ###   ########lyon.fr    #
+#    Updated: 2020/05/21 13:17:48 by pramella         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	philo_two
 
-SRCS	=	$(SRCS_D)philo_two.c\
-			$(SRCS_D)philo_setup.c\
-			$(SRCS_D)time.c\
+SRCS	=	$(SRCS_D)philo.c\
+			$(SRCS_D)life_cycle.c\
+			$(SRCS_D)monitor.c\
+			$(SRCS_D)setup.c\
 			$(SRCS_D)utils.c\
+			$(SRCS_D)itoa.c
 
 OBJS	=	$(SRCS:.c=.o)
-
 HEADER	=	$(SRCS:.c=.h)
-
 SRCS_D	=	srcs/
-
-CC		=	gcc
-
-CFLAGS	=	-pthread -O3 -g3 -I$(SRCS_D) -Wall -Wextra #-Werror
+CC		=	clang
+CFLAGS	=	-pthread -Wall -Wextra -Werror
 
 %.o:	%.c $(HEADER)
 		@$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)
@@ -34,16 +32,16 @@ all: 	$(NAME)
 
 $(NAME):$(OBJS) Makefile
 		$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
-		@echo "\x1b[32m"$(NAME) compilation done..."\x1b[0m"
-		@echo "\x1b[31m"all your base are belong to us"\x1b[0m"
+		@echo "$(NAME) compilation done..."
+		@echo "all your base are belong to us"
 
 clean:
 		@rm -rf $(OBJS)
-		@echo "\x1b[31m"make clean done..."\x1b[0m"
+		@echo "make clean done..."
 
 fclean: clean
 		@rm -rf $(NAME)
-		@echo "\x1b[31m"make fclean done..."\x1b[0m"
+		@echo "make fclean done..."
 
 re:		fclean all
 

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/18 17:47:09 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 15:07:37 by pramella         ###   ########lyon.fr   */
+/*   Created: 2020/05/17 10:55:37 by pramella          #+#    #+#             */
+/*   Updated: 2020/05/21 14:31:50 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	*life_cycle(void *ph)
 {
-	t_philo		*philo;
 	pthread_t	tid;
+	t_philo		*philo;
 
 	philo = ph;
 	philo->next_philo_id = (philo->id == philo->rules->nbr_of_philo - 1) ?
@@ -44,43 +44,38 @@ int		eat(t_philo *philo)
 		return (0);
 	if (!print_status(philo, IS_EATING))
 	{
-		pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
-		pthread_mutex_unlock(&philo->mutex->fork[philo->next_philo_id]);
+		sem_post(philo->sem->fork);
+		sem_post(philo->sem->fork);
 		return (0);
 	}
-	pthread_mutex_lock(&philo->last_meal);
+	sem_wait(philo->last_meal);
 	philo->time_of_last_meal_ms = get_timestamp_ms();
-	pthread_mutex_unlock(&philo->last_meal);
+	sem_post(philo->last_meal);
 	usleep(philo->rules->time_to_eat_us);
-	pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
-	pthread_mutex_unlock(&philo->mutex->fork[philo->next_philo_id]);
+	sem_post(philo->sem->fork);
+	sem_post(philo->sem->fork);
 	if (++philo->meal_counter == philo->rules->nbr_of_req_meals)
 	{
-		pthread_mutex_lock(&philo->mutex->global_satiated);
+		sem_wait(philo->sem->global_satiated);
 		++g_philos_satiated;
-		pthread_mutex_unlock(&philo->mutex->global_satiated);
+		sem_post(philo->sem->global_satiated);
 	}
 	return (1);
 }
 
 int		take_forks(t_philo *philo)
 {
-	int first;
-	int second;
-
-	first = (philo->next_philo_id == 0) ? 0 : philo->id;
-	second = (philo->next_philo_id == 0) ? philo->id : philo->next_philo_id;
-	pthread_mutex_lock(&philo->mutex->fork[first]);
+	sem_wait(philo->sem->fork);
 	if (!print_status(philo, TOOK_FORK))
 	{
-		pthread_mutex_unlock(&philo->mutex->fork[first]);
+		sem_post(philo->sem->fork);
 		return (0);
 	}
-	pthread_mutex_lock(&philo->mutex->fork[second]);
+	sem_wait(philo->sem->fork);
 	if (!print_status(philo, TOOK_FORK))
 	{
-		pthread_mutex_unlock(&philo->mutex->fork[first]);
-		pthread_mutex_unlock(&philo->mutex->fork[second]);
+		sem_post(philo->sem->fork);
+		sem_post(philo->sem->fork);
 		return (0);
 	}
 	return (1);
@@ -89,21 +84,21 @@ int		take_forks(t_philo *philo)
 int		print_status(t_philo *philo, int index)
 {
 	static char	*msg[4] = {" has taken a fork\n", " is eating\n",
-							" is sleeping\n", " is thinking\n"};
+								" is sleeping\n", " is thinking\n"};
 	static int	len[4] = {18, 11, 13, 13};
 
-	pthread_mutex_lock(&philo->mutex->global_died);
+	sem_wait(philo->sem->global_died);
 	if (g_philo_died)
 	{
-		pthread_mutex_unlock(&philo->mutex->global_died);
+		sem_post(philo->sem->global_died);
 		return (0);
 	}
-	pthread_mutex_unlock(&philo->mutex->global_died);
-	pthread_mutex_lock(&philo->mutex->write);
+	sem_post(philo->sem->global_died);
+	sem_wait(philo->sem->write);
 	ft_putnbr(get_timestamp_ms() - philo->rules->time_of_start_ms);
 	write(1, "\t", 1);
 	ft_putnbr(philo->id + 1);
 	write(1, msg[index], len[index]);
-	pthread_mutex_unlock(&philo->mutex->write);
+	sem_post(philo->sem->write);
 	return (1);
 }

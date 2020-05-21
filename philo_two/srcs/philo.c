@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:54 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 14:28:50 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/21 14:57:40 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int		main(int ac, char **av)
 {
 	t_philo		*philo;
 	t_rules		rules;
-	t_mutex		mutex;
+	t_semaphore	sem;
 
 	if ((ac != 5 && ac != 6))
 	{
@@ -26,13 +26,13 @@ int		main(int ac, char **av)
 		return (1);
 	}
 	philo = NULL;
-	if (!parse(av, &rules) || !init(&philo, &mutex, rules.nbr_of_philo))
+	if (!parse(av, &rules) || !init(&philo, &sem, rules.nbr_of_philo))
 		return (1);
-	run_simulation(philo, &rules, &mutex);
+	run_simulation(philo, &rules, &sem);
 	return (0);
 }
 
-void	run_simulation(t_philo *philo, t_rules *rules, t_mutex *mutex)
+void	run_simulation(t_philo *philo, t_rules *rules, t_semaphore *sem)
 {
 	int			i;
 	pthread_t	tid;
@@ -42,7 +42,7 @@ void	run_simulation(t_philo *philo, t_rules *rules, t_mutex *mutex)
 	{
 		philo[i].id = i;
 		philo[i].rules = rules;
-		philo[i].mutex = mutex;
+		philo[i].sem = sem;
 	}
 	rules->time_of_start_ms = get_timestamp_ms();
 	i = -1;
@@ -51,25 +51,11 @@ void	run_simulation(t_philo *philo, t_rules *rules, t_mutex *mutex)
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
 		if (i == 0 && rules->nbr_of_req_meals > 0)
 			pthread_create(&tid, NULL, monitor_meals, &philo[i]);
-		(i == 0) ? usleep(100) : 0;
+		usleep(20);
 	}
 	(rules->nbr_of_req_meals > 0) ? pthread_join(tid, NULL) : 0;
 	i = -1;
 	while (++i < rules->nbr_of_philo)
 		pthread_join(philo[i].tid, NULL);
-	cleanup(philo);
-}
-
-void	cleanup(t_philo *philo)
-{
-	int i;
-
-	i = -1;
-	while (++i < philo->rules->nbr_of_philo)
-		pthread_mutex_destroy(&philo->mutex->fork[i]);
-	pthread_mutex_destroy(&philo->mutex->write);
-	pthread_mutex_destroy(&philo->mutex->global_died);
-	pthread_mutex_destroy(&philo->mutex->global_satiated);
-	free(philo->mutex->fork);
 	free(philo);
 }
