@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 15:07:24 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/21 22:45:40 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ typedef struct		s_philo
 }					t_philo;
 
 /*
-** PHILO
+** MAIN
 */
 void				run_simulation(t_philo *ph, t_rules *ru, t_mutex *mx);
 void				cleanup(t_philo *philo);

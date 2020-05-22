@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 14:59:14 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/22 11:25:53 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ typedef struct		s_philo
 }					t_philo;
 
 /*
-** PHILO
+** MAIN
 */
 void				run_simulation(t_philo *ph, t_rules *ru, t_semaphore *sem);
 
@@ -103,7 +103,7 @@ unsigned long		ft_atol(const char *str);
 void				ft_putnbr(unsigned long n);
 
 /*
-** ITOAs
+** ITOA
 */
 char				*ft_itoa(int n);
 

@@ -6,13 +6,13 @@
 #    By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/05/09 16:37:58 by pramella          #+#    #+#              #
-#    Updated: 2020/05/21 13:17:48 by pramella         ###   ########lyon.fr    #
+#    Updated: 2020/05/22 11:25:38 by pramella         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	philo_two
 
-SRCS	=	$(SRCS_D)philo.c\
+SRCS	=	$(SRCS_D)main.c\
 			$(SRCS_D)life_cycle.c\
 			$(SRCS_D)monitor.c\
 			$(SRCS_D)setup.c\

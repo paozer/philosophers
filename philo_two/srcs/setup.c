@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:47 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 15:01:19 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/22 11:20:09 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,13 +51,16 @@ int		init(t_philo **philo, t_semaphore *sem, int nbr_of_philo)
 	{
 		str = get_sem_name("/last_meal", i);
 		((*philo)[i]).last_meal = sem_open(str, O_CREAT | O_EXCL, 0644, 1);
-		err_flag += (((*philo)[i]).last_meal == SEM_FAILED) ? 1 : 0;
 		free(str);
+		err_flag += (((*philo)[i]).last_meal == SEM_FAILED) ? 1 : 0;
 	}
 	unlink_semaphores(nbr_of_philo);
 	if (sem->fork == SEM_FAILED || sem->write == SEM_FAILED || err_flag ||
 		sem->global_died == SEM_FAILED || sem->global_satiated == SEM_FAILED)
+	{
+		free(*philo);
 		return (0);
+	}
 	return (1);
 }
 
