@@ -5,24 +5,25 @@
 #                                                     +:+ +:+         +:+      #
 #    By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2020/05/09 16:37:33 by pramella          #+#    #+#              #
-#    Updated: 2020/05/12 16:09:17 by pramella         ###   ########lyon.fr    #
+#    Created: 2020/05/09 16:37:58 by pramella          #+#    #+#              #
+#    Updated: 2020/05/23 16:09:06 by pramella         ###   ########lyon.fr    #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	=	philo_three
 
-SRCS	=	$(SRCS_D)philo.c\
-			$(SRCS_D)setup.c\
+SRCS	=	$(SRCS_D)main.c\
+			$(SRCS_D)life_cycle.c\
 			$(SRCS_D)monitor.c\
-			$(SRCS_D)time.c\
+			$(SRCS_D)setup.c\
 			$(SRCS_D)utils.c\
+			$(SRCS_D)itoa.c
 
 OBJS	=	$(SRCS:.c=.o)
-HEADER	=	$(SRCS:.c=.h)
 SRCS_D	=	srcs/
-CC		=	gcc
-CFLAGS	=	-pthread -O3 -g3 -I$(SRCS_D) -Wall -Wextra #-Werror
+HEADER	=	philo.h
+CC		=	clang
+CFLAGS	=	-pthread -Wall -Wextra -Werror
 
 %.o:	%.c $(HEADER)
 		@$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)

@@ -5,40 +5,42 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/09 16:37:18 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/12 16:03:26 by pramella         ###   ########lyon.fr   */
+/*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
+/*   Updated: 2020/05/23 16:08:33 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_THREE_H
-# define PHILO_THREE_H
+#ifndef PHILO_H
+# define PHILO_H
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <pthread.h>
-#include <signal.h>
-#include <semaphore.h>
-#include "utils.h"
-#include "time.h"
+# include <unistd.h>
+# include <stdlib.h>
+# include <string.h>
+# include <signal.h>
+# include <sys/time.h>
+# include <pthread.h>
+# include <semaphore.h>
 
 # define MSG_THINKING 0
 # define MSG_FORK 1
 # define MSG_EATING 2
 # define MSG_SLEEPING 3
 
+int g_philo_died;
+int g_philos_satiated;
+
 typedef struct		s_semaphore
 {
-	sem_t			*forks;
+	sem_t			*fork;
 	sem_t			*write;
+	sem_t			*finished_meals;
 	sem_t			*simulation_end;
-	sem_t			*finished_eating;
 }					t_semaphore;
 
 typedef struct		s_rules
 {
 	int				nbr_of_philo;
-	int				nbr_of_req_eats;
+	int				nbr_of_req_meals;
 	unsigned long	time_of_start_ms;
 	unsigned long	time_to_die_ms;
 	unsigned long	time_to_eat_ms;
@@ -50,32 +52,58 @@ typedef struct		s_rules
 
 typedef struct		s_philo
 {
+	pthread_t		tid;
 	int				id;
+	int				next_philo_id;
 	int				meal_counter;
 	unsigned long	time_of_last_meal_ms;
-	t_rules			rules;
-	t_semaphore		sem;
+	sem_t			*last_meal;
+	t_rules			*rules;
+	t_semaphore		*sem;
 }					t_philo;
 
-typedef struct		s_mnt_data
-{
-	int				nbr_of_philo;
-	int				nbr_of_req_eats;
-	t_rules			rules;
-	t_semaphore		sem;
-}					t_mnt_data;
+/*
+** MAIN
+*/
+void				run_simulation(t_rules *rules, t_semaphore *sem);
+void				cleanup(pid_t *pid, pid_t pid2,
+					t_rules *rules, t_semaphore *sem);
 
-int					parsing(char *av[], t_rules *rules);
-int					init(pid_t **pid, t_semaphore *sem, int nbr_of_philo);
+/*
+** LIFE_CYCLE
+*/
+void				life_cycle(t_philo *philo);
+void				eat(t_philo *philo);
+void				print_status(t_philo *philo, int index);
 
-void				*life_cycle(void *ph);
-void				do_eating(t_philo *philo);
-void				do_thinking(t_philo *philo);
-void				do_sleeping(t_philo *philo);
-void				print_message(t_philo *philo, int index);
-
-void				set_monitor_data(t_mnt_data *mnt_data, t_rules rules, t_semaphore sem);
-void				*monitor_finished(void *data);
+/*
+** MONITOR
+*/
 void				*monitor_death(void *ph);
+void				*monitor_meals(void *ph);
+void				print_exit(t_philo *philo, int index, unsigned long ts);
+
+/*
+** SETUP
+*/
+int					parse(char *av[], t_rules *rules);
+int					init(t_philo **philo, t_semaphore *sem, int nbr_of_philo);
+int					valid_arguments(char *av[]);
+int					unlink_semaphores(int nbr_of_philo);
+char				*get_sem_name(char *basename, int added_index);
+
+/*
+** UTILS
+*/
+unsigned long		get_timestamp_ms(void);
+size_t				ft_strlcpy(char *dst, const char *src, size_t dstsize);
+size_t				ft_strlen(const char *s);
+unsigned long		ft_atol(const char *str);
+void				ft_putnbr(unsigned long n);
+
+/*
+** ITOA
+*/
+char				*ft_itoa(int n);
 
 #endif

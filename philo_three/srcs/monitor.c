@@ -5,61 +5,74 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/12 15:59:00 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/12 16:00:53 by pramella         ###   ########lyon.fr   */
+/*   Created: 2020/05/10 14:07:58 by pramella          #+#    #+#             */
+/*   Updated: 2020/05/23 15:34:50 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*monitor_death(void *ph)
+/*
+** monitoring thread created by main to monitor if all the philosophers have
+** eaten enough meals
+*/
+
+void	*monitor_meals(void *ph)
 {
 	t_philo			*philo;
-	unsigned long	timestamp_ms;
+	int				count;
 
-	philo = (t_philo *)ph;
-	while (1)
-	{
-		sem_wait(philo->sem.write);
-		timestamp_ms = get_timestamp_ms();
-		if (timestamp_ms - philo->time_of_last_meal_ms >=
-			philo->rules.time_to_die_ms)
-		{
-			sem_post(philo->sem.simulation_end);
-			ft_putnbr(timestamp_ms - philo->rules.time_of_start_ms);
-			write(1, "\t", 1);
-			ft_putnbr(philo->id + 1);
-			write(1, " died\n", 6);
-			return (NULL);
-		}
-		sem_post(philo->sem.write);
-		usleep(100);
-	}
-	return (NULL);
-}
-
-void	*monitor_finished(void *data)
-{
-	int			count;
-	t_mnt_data	*mnt_data;
-	t_semaphore	sem;
-
-	mnt_data = (t_mnt_data *)data;
-	sem = mnt_data->sem;
-	if (mnt_data->nbr_of_req_eats < 1)
-		return (NULL);
+	philo = ph;
 	count = 0;
 	while (1)
 	{
-		sem_wait(sem.finished_eating);
-		sem_post(sem.finished_eating);
-		if (++count == mnt_data->nbr_of_philo)
+		sem_wait(philo->sem->finished_meals);
+		if (++count == philo->rules->nbr_of_philo)
 		{
-			sem_wait(sem.write);
-			sem_post(sem.simulation_end);
-			write(1, "All philosophers ate enough\n", 28);
-			return (NULL);
+			print_exit(ph, ARE_SATIATED, 1);
+			exit(0);
 		}
 	}
-	return (NULL);
+}
+
+/*
+** monitoring thread created by each philosopher to monitor it's own health
+** and to check if another philo died
+*/
+
+void	*monitor_death(void *ph)
+{
+	t_philo			*philo;
+	unsigned long	timestamp;
+
+	philo = ph;
+	while (1)
+	{
+		sem_wait(philo->last_meal);
+		if ((timestamp = get_timestamp_ms()) - philo->time_of_last_meal_ms >
+			philo->rules->time_to_die_ms)
+		{
+			sem_post(philo->last_meal);
+			print_exit(ph, HAS_DIED, timestamp);
+			return (NULL);
+		}
+		sem_post(philo->last_meal);
+		usleep(1000);
+	}
+}
+
+void	print_exit(t_philo *philo, int index, unsigned long timestamp)
+{
+	static char	*msg[2] = {" has died\n", "All philosophers ate enough\n"};
+	static int	len[2] = {10, 28};
+
+	sem_wait(philo->sem->write);
+	if (index == HAS_DIED)
+	{
+		ft_putnbr(timestamp - philo->rules->time_of_start_ms);
+		write(1, "\t", 1);
+		ft_putnbr(philo->id + 1);
+	}
+	write(1, msg[index], len[index]);
+	sem_post(philo->sem->simulation_end);
 }
