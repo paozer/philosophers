@@ -6,11 +6,19 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:26 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/23 16:08:53 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/21 12:28:29 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "utils.h"
+#include "philo.h"
+
+unsigned long	get_timestamp_ms(void)
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, 0);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
 
 size_t			ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {

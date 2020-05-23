@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:50 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/23 16:08:33 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/23 15:55:23 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,13 @@
 # include <pthread.h>
 # include <semaphore.h>
 
-# define MSG_THINKING 0
-# define MSG_FORK 1
-# define MSG_EATING 2
-# define MSG_SLEEPING 3
+# define TOOK_FORK 0
+# define IS_EATING 1
+# define IS_SLEEPING 2
+# define IS_THINKING 3
+
+# define HAS_DIED 0
+# define ARE_SATIATED 1
 
 int g_philo_died;
 int g_philos_satiated;
@@ -43,9 +46,6 @@ typedef struct		s_rules
 	int				nbr_of_req_meals;
 	unsigned long	time_of_start_ms;
 	unsigned long	time_to_die_ms;
-	unsigned long	time_to_eat_ms;
-	unsigned long	time_to_sleep_ms;
-	unsigned long	time_to_die_us;
 	unsigned long	time_to_eat_us;
 	unsigned long	time_to_sleep_us;
 }					t_rules;
