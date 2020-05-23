@@ -79,9 +79,8 @@ void	*monitor_death(void *ph)
 
 void	*print_exit(t_philo *philo, int index, unsigned long timestamp)
 {
-	static char	*msg[2] = {" has died\n",
-								"All philosophers have eaten enough\n"};
-	static int	len[2] = {10, 35};
+	static char	*msg[2] = {" has died\n", "All philosophers ate enough\n"};
+	static int	len[2] = {10, 28};
 
 	sem_wait(philo->sem->write);
 	if (index == HAS_DIED)

@@ -42,8 +42,10 @@ int		init(t_philo **philo, t_semaphore *sem, int nbr_of_philo)
 		return (0);
 	sem->fork = sem_open("/fork", O_CREAT | O_EXCL, 0644, nbr_of_philo);
 	sem->write = sem_open("/write", O_CREAT | O_EXCL, 0644, 1);
-	sem->finished_meals = sem_open("/finished_meals", O_CREAT | O_EXCL, 0644, 0);
-	sem->simulation_end = sem_open("/simulation_end", O_CREAT | O_EXCL, 0644, 0);
+	sem->finished_meals = sem_open("/finished_meals",
+			O_CREAT | O_EXCL, 0644, 0);
+	sem->simulation_end = sem_open("/simulation_end",
+			O_CREAT | O_EXCL, 0644, 0);
 	err_flag = 0;
 	i = -1;
 	while (++i < nbr_of_philo)

@@ -28,7 +28,6 @@ void	life_cycle(t_philo *philo)
 	philo->last_meal = sem_open(str, 0644);
 	free(str);
 	philo->time_of_last_meal_ms = philo->rules->time_of_start_ms;
-	// philo->time_of_last_meal_ms = get_timestamp_ms();
 	pthread_create(&tid, NULL, monitor_death, philo);
 	while (1)
 	{

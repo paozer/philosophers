@@ -16,10 +16,10 @@ SRCS	=	$(SRCS_D)main.c\
 			$(SRCS_D)life_cycle.c\
 			$(SRCS_D)monitor.c\
 			$(SRCS_D)setup.c\
-			$(SRCS_D)utils.c\
+			$(SRCS_D)utils.c
 
 OBJS	=	$(SRCS:.c=.o)
-HEADER	=	$(SRCS:.c=.h)
+HEADER	=	philo.h
 SRCS_D	=	srcs/
 CC		=	clang
 CFLAGS	=	-pthread -Wall -Wextra -Werror

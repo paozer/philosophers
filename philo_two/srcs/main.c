@@ -49,8 +49,8 @@ void	run_simulation(t_philo *philo, t_rules *rules, t_semaphore *sem)
 	while (++i < rules->nbr_of_philo)
 	{
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
-		if (i == 0 && rules->nbr_of_req_meals > 0)
-			pthread_create(&tid, NULL, monitor_meals, &philo[i]);
+		(i == 0 && rules->nbr_of_req_meals > 0) ?
+			pthread_create(&tid, NULL, monitor_meals, &philo[i]) : 0;
 		usleep(20);
 	}
 	(rules->nbr_of_req_meals > 0) ? pthread_join(tid, NULL) : 0;

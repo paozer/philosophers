@@ -22,7 +22,6 @@ void	*life_cycle(void *ph)
 							0 : philo->id + 1;
 	philo->meal_counter = 0;
 	philo->time_of_last_meal_ms = philo->rules->time_of_start_ms;
-	// philo->time_of_last_meal_ms = get_timestamp_ms();
 	pthread_create(&tid, NULL, monitor_death, philo);
 	while (1)
 	{

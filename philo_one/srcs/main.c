@@ -29,6 +29,7 @@ int		main(int ac, char **av)
 	if (!parse(av, &rules) || !init(&philo, &mutex, rules.nbr_of_philo))
 		return (1);
 	run_simulation(philo, &rules, &mutex);
+	cleanup(philo);
 	return (0);
 }
 
@@ -49,15 +50,14 @@ void	run_simulation(t_philo *philo, t_rules *rules, t_mutex *mutex)
 	while (++i < rules->nbr_of_philo)
 	{
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
-		if (i == 0 && rules->nbr_of_req_meals > 0)
-			pthread_create(&tid, NULL, monitor_meals, &philo[i]);
-		(i == 0) ? usleep(100) : 0;
+		(i == 0 && rules->nbr_of_req_meals > 0) ?
+			pthread_create(&tid, NULL, monitor_meals, &philo[i]) : 0;
+		(i == 0) ? usleep(50) : 0;
 	}
 	(rules->nbr_of_req_meals > 0) ? pthread_join(tid, NULL) : 0;
 	i = -1;
 	while (++i < rules->nbr_of_philo)
 		pthread_join(philo[i].tid, NULL);
-	cleanup(philo);
 }
 
 void	cleanup(t_philo *philo)
@@ -66,7 +66,10 @@ void	cleanup(t_philo *philo)
 
 	i = -1;
 	while (++i < philo->rules->nbr_of_philo)
+	{
 		pthread_mutex_destroy(&philo->mutex->fork[i]);
+		pthread_mutex_destroy(&philo[i].last_meal);
+	}
 	pthread_mutex_destroy(&philo->mutex->write);
 	pthread_mutex_destroy(&philo->mutex->global_died);
 	pthread_mutex_destroy(&philo->mutex->global_satiated);

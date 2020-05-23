@@ -20,7 +20,7 @@ SRCS	=	$(SRCS_D)main.c\
 			$(SRCS_D)itoa.c
 
 OBJS	=	$(SRCS:.c=.o)
-HEADER	=	$(SRCS:.c=.h)
+HEADER	=	philo.h
 SRCS_D	=	srcs/
 CC		=	clang
 CFLAGS	=	-pthread -Wall -Wextra -Werror
