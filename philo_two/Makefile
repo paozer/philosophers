@@ -30,6 +30,9 @@ CFLAGS	=	-pthread -Wall -Wextra -Werror
 
 all: 	$(NAME)
 
+debug:	CFLAGS += -g3 -fsanitize=thread
+debug:	$(NAME)
+
 $(NAME):$(OBJS) Makefile
 		$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 		@echo "$(NAME) compilation done..."

@@ -44,6 +44,7 @@ void	eat(t_philo *philo)
 	print_status(philo, TOOK_FORK);
 	sem_wait(philo->sem->fork);
 	print_status(philo, TOOK_FORK);
+	print_status(philo, IS_EATING);
 	sem_wait(philo->last_meal);
 	philo->time_of_last_meal_ms = get_timestamp_ms();
 	sem_post(philo->last_meal);

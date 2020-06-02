@@ -20,6 +20,24 @@ unsigned long	get_timestamp_ms(void)
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
+int				valid_arguments(char *av[])
+{
+	int i;
+	int j;
+
+	i = 0;
+	while (av[++i])
+	{
+		j = -1;
+		while (av[i][++j])
+		{
+			if (av[i][j] < '0' || av[i][j] > '9')
+				return (0);
+		}
+	}
+	return (1);
+}
+
 size_t			ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {
 	size_t i;
@@ -35,16 +53,6 @@ size_t			ft_strlcpy(char *dst, const char *src, size_t dstsize)
 		dst[i] = '\0';
 	}
 	return (ft_strlen(src));
-}
-
-size_t			ft_strlen(const char *s)
-{
-	size_t i;
-
-	i = 0;
-	while (s[i])
-		++i;
-	return (i);
 }
 
 unsigned long	ft_atol(const char *str)

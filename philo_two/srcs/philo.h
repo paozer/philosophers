@@ -20,6 +20,7 @@
 # include <stdio.h>
 # include <sys/time.h>
 # include <pthread.h>
+# include <fcntl.h>
 # include <semaphore.h>
 
 # define TOOK_FORK 0
@@ -89,7 +90,7 @@ void				*print_exit(t_philo *philo, int index,
 */
 int					parse(char *av[], t_rules *rules);
 int					init(t_philo **philo, t_semaphore *sem, int nbr_of_philo);
-int					valid_arguments(char *av[]);
+int					init_error(t_philo *philo);
 int					unlink_semaphores(int nbr_of_philo);
 char				*get_sem_name(char *basename, int added_index);
 
@@ -97,14 +98,15 @@ char				*get_sem_name(char *basename, int added_index);
 ** UTILS
 */
 unsigned long		get_timestamp_ms(void);
+int					valid_arguments(char *av[]);
 size_t				ft_strlcpy(char *dst, const char *src, size_t dstsize);
 size_t				ft_strlen(const char *s);
 unsigned long		ft_atol(const char *str);
-void				ft_putnbr(unsigned long n);
 
 /*
 ** ITOA
 */
 char				*ft_itoa(int n);
+void				ft_putnbr(unsigned long n);
 
 #endif

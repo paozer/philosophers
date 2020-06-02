@@ -56,6 +56,7 @@ void	run_simulation(t_rules *rules, t_semaphore *sem)
 			free(pid);
 			life_cycle(&philo);
 		}
+		usleep(30);
 	}
 	cleanup(pid, pid2, rules, sem);
 }
@@ -65,7 +66,6 @@ void	cleanup(pid_t *pid, pid_t pid2, t_rules *rules, t_semaphore *sem)
 	int i;
 
 	sem_wait(sem->simulation_end);
-	unlink_semaphores(rules->nbr_of_philo);
 	i = -1;
 	while (++i < rules->nbr_of_philo)
 		kill(pid[i], SIGKILL);

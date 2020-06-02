@@ -83,7 +83,7 @@ int		take_forks(t_philo *philo)
 int		print_status(t_philo *philo, int index)
 {
 	static char	*msg[4] = {" has taken a fork\n", " is eating\n",
-								" is sleeping\n", " is thinking\n"};
+							" is sleeping\n", " is thinking\n"};
 	static int	len[4] = {18, 11, 13, 13};
 
 	sem_wait(philo->sem->global_died);
@@ -92,8 +92,8 @@ int		print_status(t_philo *philo, int index)
 		sem_post(philo->sem->global_died);
 		return (0);
 	}
-	sem_post(philo->sem->global_died);
 	sem_wait(philo->sem->write);
+	sem_post(philo->sem->global_died);
 	ft_putnbr(get_timestamp_ms() - philo->rules->time_of_start_ms);
 	write(1, "\t", 1);
 	ft_putnbr(philo->id + 1);

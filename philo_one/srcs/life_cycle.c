@@ -64,22 +64,17 @@ int		eat(t_philo *philo)
 
 int		take_forks(t_philo *philo)
 {
-	int first;
-	int second;
-
-	first = (philo->next_philo_id == 0) ? 0 : philo->id;
-	second = (philo->next_philo_id == 0) ? philo->id : philo->next_philo_id;
-	pthread_mutex_lock(&philo->mutex->fork[first]);
+	pthread_mutex_lock(&philo->mutex->fork[philo->id]);
 	if (!print_status(philo, TOOK_FORK))
 	{
-		pthread_mutex_unlock(&philo->mutex->fork[first]);
+		pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
 		return (0);
 	}
-	pthread_mutex_lock(&philo->mutex->fork[second]);
+	pthread_mutex_lock(&philo->mutex->fork[philo->next_philo_id]);
 	if (!print_status(philo, TOOK_FORK))
 	{
-		pthread_mutex_unlock(&philo->mutex->fork[first]);
-		pthread_mutex_unlock(&philo->mutex->fork[second]);
+		pthread_mutex_unlock(&philo->mutex->fork[philo->id]);
+		pthread_mutex_unlock(&philo->mutex->fork[philo->next_philo_id]);
 		return (0);
 	}
 	return (1);
@@ -97,8 +92,8 @@ int		print_status(t_philo *philo, int index)
 		pthread_mutex_unlock(&philo->mutex->global_died);
 		return (0);
 	}
-	pthread_mutex_unlock(&philo->mutex->global_died);
 	pthread_mutex_lock(&philo->mutex->write);
+	pthread_mutex_unlock(&philo->mutex->global_died);
 	ft_putnbr(get_timestamp_ms() - philo->rules->time_of_start_ms);
 	write(1, "\t", 1);
 	ft_putnbr(philo->id + 1);

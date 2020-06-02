@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/10 14:07:58 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 14:28:15 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/25 02:26:10 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,11 @@ void	*monitor_meals(void *ph)
 		{
 			pthread_mutex_unlock(&mx->global_satiated);
 			g_philo_died = 1;
-			pthread_mutex_unlock(&mx->global_died);
 			return (print_exit(ph, ARE_SATIATED, 1));
 		}
-		pthread_mutex_unlock(&mx->global_satiated);
 		pthread_mutex_unlock(&mx->global_died);
-		usleep(1000);
+		pthread_mutex_unlock(&mx->global_satiated);
+		usleep(10);
 	}
 }
 
@@ -65,14 +64,13 @@ void	*monitor_death(void *ph)
 			if (!g_philo_died)
 			{
 				g_philo_died = 1;
-				pthread_mutex_unlock(&philo->mutex->global_died);
 				return (print_exit(philo, HAS_DIED, timestamp));
 			}
 			pthread_mutex_unlock(&philo->mutex->global_died);
 			return (NULL);
 		}
 		pthread_mutex_unlock(&philo->last_meal);
-		usleep(1000);
+		usleep(10);
 	}
 }
 
@@ -82,6 +80,7 @@ void	*print_exit(t_philo *philo, int index, unsigned long timestamp)
 	static int	len[2] = {10, 28};
 
 	pthread_mutex_lock(&philo->mutex->write);
+	pthread_mutex_unlock(&philo->mutex->global_died);
 	if (index == HAS_DIED)
 	{
 		ft_putnbr(timestamp - philo->rules->time_of_start_ms);

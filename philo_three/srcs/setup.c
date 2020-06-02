@@ -42,10 +42,10 @@ int		init(t_philo **philo, t_semaphore *sem, int nbr_of_philo)
 		return (0);
 	sem->fork = sem_open("/fork", O_CREAT | O_EXCL, 0644, nbr_of_philo);
 	sem->write = sem_open("/write", O_CREAT | O_EXCL, 0644, 1);
-	sem->finished_meals = sem_open("/finished_meals",
-			O_CREAT | O_EXCL, 0644, 0);
-	sem->simulation_end = sem_open("/simulation_end",
-			O_CREAT | O_EXCL, 0644, 0);
+	sem->finished_meals = sem_open("/finished_meals", O_CREAT | O_EXCL,
+			0644, 0);
+	sem->simulation_end = sem_open("/simulation_end", O_CREAT | O_EXCL,
+			0644, 0);
 	err_flag = 0;
 	i = -1;
 	while (++i < nbr_of_philo)
@@ -57,12 +57,15 @@ int		init(t_philo **philo, t_semaphore *sem, int nbr_of_philo)
 	}
 	if (sem->fork == SEM_FAILED || sem->write == SEM_FAILED || err_flag ||
 		sem->finished_meals == SEM_FAILED || sem->simulation_end == SEM_FAILED)
-	{
-		unlink_semaphores(nbr_of_philo);
-		free(*philo);
-		return (0);
-	}
+		return (init_error(*philo, nbr_of_philo));
 	return (1);
+}
+
+int		init_error(t_philo *philo, int nbr_of_philo)
+{
+	unlink_semaphores(nbr_of_philo);
+	free(philo);
+	return (0);
 }
 
 char	*get_sem_name(char *basename, int added_index)
@@ -107,23 +110,5 @@ int		unlink_semaphores(int nbr_of_philo)
 	sem_unlink("/write");
 	sem_unlink("/finished_meals");
 	sem_unlink("/simulation_end");
-	return (1);
-}
-
-int		valid_arguments(char *av[])
-{
-	int i;
-	int j;
-
-	i = 0;
-	while (av[++i])
-	{
-		j = -1;
-		while (av[i][++j])
-		{
-			if (av[i][j] < '0' || av[i][j] > '9')
-				return (0);
-		}
-	}
 	return (1);
 }

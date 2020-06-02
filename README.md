@@ -1,5 +1,6 @@
 # ressources
-* pthread: https://computing.llnl.gov/tutorials/pthreads/
-* pthread/synchronization/processes: https://github.com/angrave/SystemProgramming/wiki/
+* intro: https://computing.llnl.gov/tutorials/pthreads/
+* threads/synchronization/processes: https://github.com/angrave/SystemProgramming/wiki/
+* threads/synchronization/processes: https://greenteapress.com/thinkos/thinkos.pdf
 * semaphores example: https://gist.github.com/junfenglx/7412986
-* https://greenteapress.com/thinkos/thinkos.pdf
+* debugging/learning: https://clang.llvm.org/docs/ThreadSanitizer.html

@@ -6,7 +6,7 @@
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/10 14:07:58 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/21 14:28:26 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/25 02:27:00 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,16 +31,15 @@ void	*monitor_meals(void *ph)
 			return (NULL);
 		}
 		sem_wait(sem->global_satiated);
-		if (g_philos_satiated == ((t_philo *)ph)->rules->nbr_of_philo)
+		if (g_philos_satiated >= ((t_philo *)ph)->rules->nbr_of_philo)
 		{
 			sem_post(sem->global_satiated);
 			g_philo_died = 1;
-			sem_post(sem->global_died);
 			return (print_exit(ph, ARE_SATIATED, 0));
 		}
 		sem_post(sem->global_satiated);
 		sem_post(sem->global_died);
-		usleep(1000);
+		usleep(10);
 	}
 }
 
@@ -66,14 +65,13 @@ void	*monitor_death(void *ph)
 			if (!g_philo_died)
 			{
 				g_philo_died = 1;
-				sem_post(philo->sem->global_died);
 				return (print_exit(philo, HAS_DIED, timestamp));
 			}
 			sem_post(philo->sem->global_died);
 			return (NULL);
 		}
 		sem_post(philo->last_meal);
-		usleep(1000);
+		usleep(10);
 	}
 }
 
@@ -83,6 +81,7 @@ void	*print_exit(t_philo *philo, int index, unsigned long timestamp)
 	static int	len[2] = {10, 28};
 
 	sem_wait(philo->sem->write);
+	sem_post(philo->sem->global_died);
 	if (index == HAS_DIED)
 	{
 		ft_putnbr(timestamp - philo->rules->time_of_start_ms);

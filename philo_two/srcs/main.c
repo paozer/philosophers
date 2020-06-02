@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.c                                            :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pramella <pramella@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/09 16:36:54 by pramella          #+#    #+#             */
-/*   Updated: 2020/05/22 11:24:38 by pramella         ###   ########lyon.fr   */
+/*   Updated: 2020/05/25 02:41:37 by pramella         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	run_simulation(t_philo *philo, t_rules *rules, t_semaphore *sem)
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
 		(i == 0 && rules->nbr_of_req_meals > 0) ?
 			pthread_create(&tid, NULL, monitor_meals, &philo[i]) : 0;
-		usleep(20);
+		(i < 2) ? usleep(100) : 0;
 	}
 	(rules->nbr_of_req_meals > 0) ? pthread_join(tid, NULL) : 0;
 	i = -1;

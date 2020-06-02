@@ -12,6 +12,16 @@
 
 #include "philo.h"
 
+size_t			ft_strlen(const char *s)
+{
+	size_t i;
+
+	i = 0;
+	while (s[i])
+		++i;
+	return (i);
+}
+
 static size_t	ft_ncharsize(long n)
 {
 	size_t i;

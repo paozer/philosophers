@@ -51,3 +51,12 @@ char			*ft_itoa(int n)
 	ft_rec_itoa(nb, str);
 	return (str);
 }
+
+void			ft_putnbr(unsigned long n)
+{
+	char *str;
+
+	str = ft_itoa(n);
+	write(1, str, ft_strlen(str));
+	free(str);
+}

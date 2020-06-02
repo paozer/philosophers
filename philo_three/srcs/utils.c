@@ -12,6 +12,24 @@
 
 #include "philo.h"
 
+int				valid_arguments(char *av[])
+{
+	int i;
+	int j;
+
+	i = 0;
+	while (av[++i])
+	{
+		j = -1;
+		while (av[i][++j])
+		{
+			if (av[i][j] < '0' || av[i][j] > '9')
+				return (0);
+		}
+	}
+	return (1);
+}
+
 unsigned long	get_timestamp_ms(void)
 {
 	struct timeval tv;
@@ -60,14 +78,4 @@ unsigned long	ft_atol(const char *str)
 		++i;
 	}
 	return (-nb);
-}
-
-void			ft_putnbr(unsigned long n)
-{
-	char c;
-
-	if (n > 9)
-		ft_putnbr(n / 10);
-	c = n % 10 + '0';
-	write(1, &c, 1);
 }

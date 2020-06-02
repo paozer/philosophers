@@ -27,7 +27,7 @@ void	*monitor_meals(void *ph)
 	while (1)
 	{
 		sem_wait(philo->sem->finished_meals);
-		if (++count == philo->rules->nbr_of_philo)
+		if (++count >= philo->rules->nbr_of_philo)
 		{
 			print_exit(ph, ARE_SATIATED, 1);
 			exit(0);
@@ -57,7 +57,7 @@ void	*monitor_death(void *ph)
 			return (NULL);
 		}
 		sem_post(philo->last_meal);
-		usleep(1000);
+		usleep(10);
 	}
 }
 

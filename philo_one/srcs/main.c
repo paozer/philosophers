@@ -52,7 +52,7 @@ void	run_simulation(t_philo *philo, t_rules *rules, t_mutex *mutex)
 		pthread_create(&philo[i].tid, NULL, life_cycle, &philo[i]);
 		(i == 0 && rules->nbr_of_req_meals > 0) ?
 			pthread_create(&tid, NULL, monitor_meals, &philo[i]) : 0;
-		(i == 0) ? usleep(50) : 0;
+		usleep(50);
 	}
 	(rules->nbr_of_req_meals > 0) ? pthread_join(tid, NULL) : 0;
 	i = -1;
